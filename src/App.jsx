@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Kiosk from './components/Kiosk';
 import store from './redux/store';
+import TemperatureDisplay from './components/reading/temp';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = store.getState().auth.isAuthenticated;
@@ -25,6 +26,7 @@ const App = () => {
               </PrivateRoute>
             } 
           />
+          <Route path="/temperature" element={<TemperatureDisplay />} />
           <Route path="/" element={<Kiosk/>} />
         </Routes>
       </Router>
