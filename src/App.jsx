@@ -2,10 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import Login from './components/Login';
+import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import Kiosk from './components/Kiosk';
 import store from './redux/store';
 import TemperatureDisplay from './components/reading/temp';
+import ReviveWelcomeScreen from './welcome';
+import LanguageSelectScreen from './language';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = store.getState().auth.isAuthenticated;
@@ -18,6 +21,9 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/welcome" element={<ReviveWelcomeScreen />} />
+          <Route path="/language" element={<LanguageSelectScreen />} />
           <Route 
             path="/dashboard" 
             element={
