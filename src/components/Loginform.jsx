@@ -1,17 +1,41 @@
+// LoginForm.js
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
 
-const LoginForm = () => {
+const LoginForm = ({ onLoginSuccess }) => {
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', formData);
+      // Assuming the response data is the JWT token as a string.
+      onLoginSuccess(response.data);
+    } catch (err) {
+      console.error(err);
+      setError("Login failed. Please check your credentials.");
+    }
+  };
 
   return (
     <div className="w-full max-w-md p-6">
-      <form className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
           <input
             type="text"
+            name="username"
             placeholder="Email Address or Phone Number"
+            value={formData.username}
+            onChange={handleInputChange}
             className="w-full p-4 rounded-lg bg-secondary text-gray-300 placeholder-gray-400 border-l-4 border-primary"
           />
         </div>
@@ -19,7 +43,10 @@ const LoginForm = () => {
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
+            name="password"
             placeholder="Password"
+            value={formData.password}
+            onChange={handleInputChange}
             className="w-full p-4 rounded-lg bg-secondary text-gray-300 placeholder-gray-400 border-l-4 border-primary"
           />
           <button
@@ -36,16 +63,11 @@ const LoginForm = () => {
             <div className="relative">
               <input
                 type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                // You can add onChange logic for rememberMe if needed.
                 className="hidden"
               />
-              <div className={`w-6 h-6 rounded bg-primary flex items-center justify-center ${rememberMe ? 'bg-primary' : 'bg-secondary'}`}>
-                {rememberMe && (
-                  <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                  </svg>
-                )}
+              <div className={`w-6 h-6 rounded bg-primary flex items-center justify-center`}>
+                {/* Optionally, show a checkmark if needed */}
               </div>
             </div>
             <span className="text-white">Remember Me</span>
@@ -54,6 +76,8 @@ const LoginForm = () => {
             Forgot Password?
           </a>
         </div>
+
+        {error && <p className="text-red-500">{error}</p>}
 
         <button
           type="submit"

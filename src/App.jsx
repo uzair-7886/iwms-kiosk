@@ -9,6 +9,7 @@ import store from './redux/store';
 import TemperatureDisplay from './components/reading/temp';
 import ReviveWelcomeScreen from './welcome';
 import LanguageSelectScreen from './language';
+import FacialAuth from './components/FacialAuth';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = store.getState().auth.isAuthenticated;
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />
+          <Route path="/facial" element={<FacialAuth />} />
           <Route 
             path="/dashboard" 
             element={
