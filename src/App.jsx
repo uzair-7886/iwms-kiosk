@@ -10,6 +10,9 @@ import TemperatureDisplay from './components/reading/temp';
 import ReviveWelcomeScreen from './welcome';
 import LanguageSelectScreen from './language';
 import FacialAuth from './components/FacialAuth';
+import Homepage from './homepage';
+import Height from './1Height';
+import './i18n'; // Import i18n configuration
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = store.getState().auth.isAuthenticated;
@@ -22,6 +25,8 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path='/homepage' element={<Homepage />} />
+          <Route path='/1Height' element={<Height />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />
