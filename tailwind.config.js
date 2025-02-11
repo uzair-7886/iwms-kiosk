@@ -17,7 +17,8 @@ export default {
         'dark-text': '#1B1B1B',
         'muted-text': '#666666',
         'text': '#FFFFFF',
-        'border': '#E0E0E0'
+        'border': '#E0E0E0',
+        'extrablack': '#1F2225',
       },
     },
   },

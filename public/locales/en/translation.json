@@ -1,0 +1,41 @@
+{
+    "welcome": "Welcome to",
+    "subtitle": "Choose an option to proceed with your wellness journey",
+    "card1": {
+      "title": "Measure Vitals With BLE Devices",
+      "desc1": "Use Bluetooth-enabled devices to measure your vitals such as blood pressure, heart rate, and weight.",
+      "desc2": "Receive personalized recommendations from AI."
+    },
+    "card2": {
+      "title": "Enter Manual Health Readings",
+      "desc1": "Manually input your health data like weight, blood pressure, or heart rate.",
+      "desc2": "Receive personalized recommendations from AI."
+    },
+    "card3": {
+      "title": "View Health History",
+      "desc1": "Access your saved health records and track your progress over time.",
+      "desc2": "Visualize trends in your vitals through easy-to-read charts and summaries."
+    },
+    "proceed": "Proceed",
+    "needHelp": "Need Help?",
+    "contact": "Feel free to contact us!",
+    "getApp": "Get the App",
+    "download": "Download Reviva App",
+    "tagline": "Track your health, transform your life!",
+    "vitals_measurement": {
+        "title": "Measure Your Vitals",
+        "instructions": "Follow the steps below to record your vitals.\n You can skip any measurement if needed.",
+        "height": "Height",
+        "face_id": "Face ID",
+        "login": "Login",
+        "camera_instruction": "Please stand in front of the camera to measure your height.",
+        "next": "Move to Next",
+        "skip": "Skip Measurement",
+        "need_help": "Need Help?",
+        "contact_us": "Feel free to contact us!",
+        "footer": "Track your health, transform your life!",
+        "get_app": "Get the App",
+        "download_app": "Download Reviva App"
+      }
+  }
+  
