@@ -12,6 +12,8 @@ import LanguageSelectScreen from './language';
 import FacialAuth from './components/FacialAuth';
 import Homepage from './homepage';
 import Height from './1Height';
+import Weight from './2weight';
+import BP from './3BloodPressure';
 import './i18n'; // Import i18n configuration
 
 const PrivateRoute = ({ children }) => {
@@ -27,6 +29,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path='/homepage' element={<Homepage />} />
           <Route path='/1Height' element={<Height />} />
+          <Route path='/2Weight' element={<Weight />} />
+          <Route path='/3BloodPressure' element={<BP />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />
