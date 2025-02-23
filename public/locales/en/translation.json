@@ -36,6 +36,21 @@
         "footer": "Track your health, transform your life!",
         "get_app": "Get the App",
         "download_app": "Download Reviva App"
-      }
+      },
+    "weight_measurement": {
+      "title": "Weight Measurement",
+      "instructions": "Enter your weight and choose the unit.",
+      "weight": "Weight",
+      "bmi": "BMI",
+      "view_bmi_chart": "View BMI Chart",
+      "weight_instruction": "Please step on the scale to measure your weight."
+      },
+      "blood_pressure": {
+        "title": "Blood Pressure Measurement",
+        "sys_dia": "Systolic / Diastolic",
+        "bpm": "Heart Rate",
+        "view_chart": "View Chart",
+        "heart_rate_instruction": "Please wrap the cuff around your wrist and press the button to measure your blood pressure."
+        }
   }
   

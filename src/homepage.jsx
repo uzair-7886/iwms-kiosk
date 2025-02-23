@@ -42,6 +42,8 @@ const WellnessLanding = () => {
         setDropdownOpen(false);
     };
 
+    const currentLanguage = languages[i18n.language] || languages['en'];
+
     const isUrdu = i18n.language === 'ur';
 
     const Card = ({ image, icon, title, desc1, desc2, onClick }) => (
@@ -99,12 +101,8 @@ const WellnessLanding = () => {
                             className="flex items-center gap-2 text-white cursor-pointer border border-white/25 px-3 py-1 rounded-md"
                             onClick={() => setDropdownOpen(!dropdownOpen)}
                         >
-                            <img 
-                                src={languages[i18n.language].flag} 
-                                alt={`${i18n.language} flag`} 
-                                className="w-6 h-6 rounded-full"
-                            />
-                            <span className="text-sm">{languages[i18n.language].label}</span>
+                            <img src={currentLanguage.flag} alt={currentLanguage.label} className="w-6 h-6 rounded-full" />
+                            <span className="text-sm">{currentLanguage.label}</span>
                             <ChevronDown size={16} />
                         </button>
                         {dropdownOpen && (
