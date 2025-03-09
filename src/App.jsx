@@ -14,6 +14,8 @@ import Homepage from './homepage';
 import Height from './1Height';
 import Weight from './2weight';
 import BP from './3BloodPressure';
+import Temperature from './4Temp';
+import Summary from './summary';
 import './i18n'; // Import i18n configuration
 
 const PrivateRoute = ({ children }) => {
@@ -31,6 +33,8 @@ const App = () => {
           <Route path='/1Height' element={<Height />} />
           <Route path='/2Weight' element={<Weight />} />
           <Route path='/3BloodPressure' element={<BP />} />
+          <Route path='/4Temp' element={<Temperature />} />
+          <Route path='/summary' element={<Summary />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />

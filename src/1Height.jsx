@@ -5,6 +5,16 @@ import { Phone, QrCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { ChevronDown } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+
+const steps = [
+  { name: 'Height', path: '/1Height' },
+  { name: 'Weight', path: '/2Weight' },
+  { name: 'Blood Pressure', path: '/3BloodPressure' },
+  { name: 'Temperature', path: '/4Temp' }
+];
+
+
 
 const VitalsMeasurement = () => {
   const [heightUnit, setHeightUnit] = useState('cm');
@@ -15,6 +25,9 @@ const VitalsMeasurement = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [time, setTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
+  const location = useLocation();
+
+  const currentStep = steps.findIndex(step => step.path === location.pathname);
 
   const languages = {
       en: { flag: '/usa.png', label: 'English' },
@@ -66,7 +79,7 @@ const VitalsMeasurement = () => {
             backgroundRepeat: 'repeat'
         }}
       />
-      <nav className="flex justify-between items-center px-4 py-4 w-full max-w-7xl mx-auto">
+      <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
         <img src="/logo-nav.svg" alt="Reviva" className="h-8" />
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
@@ -109,8 +122,33 @@ const VitalsMeasurement = () => {
           </div>
         </div>
       </nav>
+      
+            {/* Progress Bar */}
+            <div className="w-full max-w-2xl flex items-center my-6 relative">
+              {steps.map((step, index) => (
+                <React.Fragment key={step.path}>
+                  <div className="flex flex-col items-center">
+                    <div 
+                      className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
+                    >
+                      {index + 1}
+                    </div>
+                    <button
+                      className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
+                      onClick={() => navigate(step.path)}
+                    >
+                      {step.name}
+                    </button>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className="flex-1 border-dotted border-t-2 border-gray-400 mx-2"></div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+      
 
-      <div className="relative z-10 max-w-4xl mx-auto py-12">
+      <div className="relative z-10 max-w-4xl mx-auto py-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
             {t('vitals_measurement.title')}

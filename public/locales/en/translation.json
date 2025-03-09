@@ -1,56 +1,72 @@
 {
-    "welcome": "Welcome to",
-    "subtitle": "Choose an option to proceed with your wellness journey",
-    "card1": {
-      "title": "Measure Vitals With BLE Devices",
-      "desc1": "Use Bluetooth-enabled devices to measure your vitals such as blood pressure, heart rate, and weight.",
-      "desc2": "Receive personalized recommendations from AI."
-    },
-    "card2": {
-      "title": "Enter Manual Health Readings",
-      "desc1": "Manually input your health data like weight, blood pressure, or heart rate.",
-      "desc2": "Receive personalized recommendations from AI."
-    },
-    "card3": {
-      "title": "View Health History",
-      "desc1": "Access your saved health records and track your progress over time.",
-      "desc2": "Visualize trends in your vitals through easy-to-read charts and summaries."
-    },
-    "proceed": "Proceed",
-    "needHelp": "Need Help?",
-    "contact": "Feel free to contact us!",
-    "getApp": "Get the App",
-    "download": "Download Reviva App",
-    "tagline": "Track your health, transform your life!",
-    "vitals_measurement": {
-        "title": "Measure Your Vitals",
-        "instructions": "Follow the steps below to record your vitals.\n You can skip any measurement if needed.",
-        "height": "Height",
-        "face_id": "Face ID",
-        "login": "Login",
-        "camera_instruction": "Please stand in front of the camera to measure your height.",
-        "next": "Move to Next",
-        "skip": "Skip Measurement",
-        "need_help": "Need Help?",
-        "contact_us": "Feel free to contact us!",
-        "footer": "Track your health, transform your life!",
-        "get_app": "Get the App",
-        "download_app": "Download Reviva App"
-      },
-    "weight_measurement": {
-      "title": "Weight Measurement",
-      "instructions": "Enter your weight and choose the unit.",
-      "weight": "Weight",
-      "bmi": "BMI",
-      "view_bmi_chart": "View BMI Chart",
-      "weight_instruction": "Please step on the scale to measure your weight."
-      },
-      "blood_pressure": {
-        "title": "Blood Pressure Measurement",
-        "sys_dia": "Systolic / Diastolic",
-        "bpm": "Heart Rate",
-        "view_chart": "View Chart",
-        "heart_rate_instruction": "Please wrap the cuff around your wrist and press the button to measure your blood pressure."
-        }
+  "welcome": "Welcome to",
+  "subtitle": "Choose an option to proceed with your wellness journey",
+  "card1": {
+    "title": "Measure Vitals With BLE Devices",
+    "desc1": "Use Bluetooth-enabled devices to measure your vitals such as blood pressure, heart rate, and weight.",
+    "desc2": "Receive personalized recommendations from AI."
+  },
+  "card2": {
+    "title": "Enter Manual Health Readings",
+    "desc1": "Manually input your health data like weight, blood pressure, or heart rate.",
+    "desc2": "Receive personalized recommendations from AI."
+  },
+  "card3": {
+    "title": "View Health History",
+    "desc1": "Access your saved health records and track your progress over time.",
+    "desc2": "Visualize trends in your vitals through easy-to-read charts and summaries."
+  },
+  "proceed": "Proceed",
+  "needHelp": "Need Help?",
+  "contact": "Feel free to contact us!",
+  "getApp": "Get the App",
+  "download": "Download Reviva App",
+  "tagline": "Track your health, transform your life!",
+  "vitals_measurement": {
+    "title": "Measure Your Vitals",
+    "instructions": "Follow the steps below to record your vitals.\n You can skip any measurement if needed.",
+    "height": "Height",
+    "face_id": "Face ID",
+    "login": "Login",
+    "camera_instruction": "Please stand in front of the camera to measure your height.",
+    "next": "Move to Next",
+    "skip": "Skip Measurement",
+    "need_help": "Need Help?",
+    "contact_us": "Feel free to contact us!",
+    "footer": "Track your health, transform your life!",
+    "get_app": "Get the App",
+    "download_app": "Download Reviva App"
+  },
+  "weight_measurement": {
+    "title": "Weight Measurement",
+    "instructions": "Enter your weight and choose the unit.",
+    "weight": "Weight",
+    "bmi": "BMI",
+    "view_bmi_chart": "View BMI Chart",
+    "weight_instruction": "Please step on the scale to measure your weight."
+  },
+  "blood_pressure": {
+    "title": "Blood Pressure Measurement",
+    "sys_dia": "Systolic / Diastolic",
+    "bpm": "Heart Rate",
+    "view_chart": "View Chart",
+    "heart_rate_instruction": "Please wrap the cuff around your wrist and press the button to measure your blood pressure."
+  },
+  "temperature": {
+    "title": "Temperature Measurement",
+    "Temp": "Temp",
+    "Fever": "Fever Alert",
+    "temp_instruction": "Please point the thermometer at your forehead to measure your temperature."
+  },
+  "summary": {
+    "title": "Vitals Summary",
+    "desc": "Your vitals are within normal ranges.",
+    "next": "View Recommendations",
+    "weight": "Weight",
+    "blood_pressure": "Blood Pressure",
+    "heart_rate": "Heart Rate",
+    "temperature": "Temperature",
+    "glucose": "Glucose",
+    "oxygen": "SpO₂"
   }
-  
+}
