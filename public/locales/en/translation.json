@@ -68,5 +68,19 @@
     "temperature": "Temperature",
     "glucose": "Glucose",
     "oxygen": "SpO₂"
+  },
+  "oxygen": {
+    "title": "Oxygen Saturation Measurement",
+    "label": "Oxygen",
+    "heart_rate": "Heart Rate",
+    "SpO2": "SpO₂",
+    "view_chart": "View Chart",
+    "instruction": "Please place the pulse oximeter on your finger to measure oxygen levels and heart rate."
+  },
+  "glucose": {
+    "title": "Glucose Measurement",
+    "label": "Glucose",
+    "card2": "Temp Correction",
+    "instruction": "Please insert the test strip into the glucometer and prick your finger to measure glucose levels."
   }
 }
