@@ -13,8 +13,10 @@ import FacialAuth from './components/FacialAuth';
 import Homepage from './homepage';
 import Height from './1Height';
 import Weight from './2weight';
-import BP from './3BloodPressure';
+import Spo2 from './3Spo2';
+import BP from './BloodPressure';
 import Temperature from './4Temp';
+import Glucose from './Glucose';
 import Summary from './summary';
 import './i18n'; // Import i18n configuration
 
@@ -32,8 +34,10 @@ const App = () => {
           <Route path='/homepage' element={<Homepage />} />
           <Route path='/1Height' element={<Height />} />
           <Route path='/2Weight' element={<Weight />} />
-          <Route path='/3BloodPressure' element={<BP />} />
+          <Route path='/3Spo2' element={<Spo2 />} />
+          <Route path='/BloodPressure' element={<BP />} />
           <Route path='/4Temp' element={<Temperature />} />
+          <Route path='/Glucose' element={<Glucose />} />
           <Route path='/summary' element={<Summary />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />

@@ -16,66 +16,66 @@ const steps = [
 
 
 const VitalsMeasurementWeight = () => {
-    const [weightUnit, setWeightUnit] = useState('kg');
-    const [weight, setWeight] = useState('70');
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [time, setTime] = useState(new Date());
-    const [weather, setWeather] = useState(null);
-    const [bmi, setBmi] = useState(null);
-    const [showBmiChart, setShowBmiChart] = useState(false);
-  
-    const location = useLocation();
+  const [weightUnit, setWeightUnit] = useState('kg');
+  const [weight, setWeight] = useState('70');
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [time, setTime] = useState(new Date());
+  const [weather, setWeather] = useState(null);
+  const [bmi, setBmi] = useState(null);
+  const [showBmiChart, setShowBmiChart] = useState(false);
 
-    const currentStep = steps.findIndex(step => step.path === location.pathname);
+  const location = useLocation();
 
-    const languages = {
-        en: { flag: '/usa.png', label: 'English' },
-        ur: { flag: '/pk.png', label: 'اردو' },
-    };
-  
-    useEffect(() => {
-        const interval = setInterval(() => setTime(new Date()), 1000);
-        return () => clearInterval(interval);
-    }, []);
-  
-    useEffect(() => {
-        const fetchWeather = async () => {
-            try {
-                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`);
-                const data = await response.json();
-                setWeather(data.main.temp);
-            } catch (error) {
-                console.error("Error fetching weather data:", error);
-            }
-        };
-        fetchWeather();
-    }, []);
-  
-    const handleLanguageChange = (lang) => {
-        i18n.changeLanguage(lang);
-        setDropdownOpen(false);
-    };
-  
-    const convertWeight = (value) => {
-      if (weightUnit === 'lbs') {
-        return (value * 2.20462).toFixed(1);
+  const currentStep = steps.findIndex(step => step.path === location.pathname);
+
+  const languages = {
+    en: { flag: '/usa.png', label: 'English' },
+    ur: { flag: '/pk.png', label: 'اردو' },
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`);
+        const data = await response.json();
+        setWeather(data.main.temp);
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
       }
-      return value;
     };
-  
-    const toggleUnit = () => {
-      setWeightUnit(weightUnit === 'kg' ? 'lbs' : 'kg');
-    };
+    fetchWeather();
+  }, []);
+
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+    setDropdownOpen(false);
+  };
+
+  const convertWeight = (value) => {
+    if (weightUnit === 'lbs') {
+      return (value * 2.20462).toFixed(1);
+    }
+    return value;
+  };
+
+  const toggleUnit = () => {
+    setWeightUnit(weightUnit === 'kg' ? 'lbs' : 'kg');
+  };
 
   return (
     <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
-              <div 
+      <div
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
-            backgroundImage: `url('./public/bgPattern.svg')`,
-            backgroundRepeat: 'repeat'
+          backgroundImage: `url('./public/bgPattern.svg')`,
+          backgroundRepeat: 'repeat'
         }}
       />
       <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
@@ -92,13 +92,13 @@ const VitalsMeasurementWeight = () => {
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="relative">
-            <button 
+            <button
               className="flex items-center gap-2 text-white cursor-pointer border border-white/25 px-3 py-1 rounded-md"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <img 
-                src={languages[i18n.language].flag} 
-                alt={`${i18n.language} flag`} 
+              <img
+                src={languages[i18n.language].flag}
+                alt={`${i18n.language} flag`}
                 className="w-6 h-6 rounded-full"
               />
               <span className="text-sm">{languages[i18n.language].label}</span>
@@ -107,8 +107,8 @@ const VitalsMeasurementWeight = () => {
             {dropdownOpen && (
               <div className="absolute top-10 left-0 w-full bg-gray-800 border border-white/25 rounded-md shadow-lg">
                 {Object.entries(languages).map(([lang, { flag, label }]) => (
-                  <div 
-                    key={lang} 
+                  <div
+                    key={lang}
                     className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-700"
                     onClick={() => handleLanguageChange(lang)}
                   >
@@ -122,30 +122,30 @@ const VitalsMeasurementWeight = () => {
         </div>
       </nav>
 
-            {/* Progress Bar */}
-            <div className="w-full max-w-2xl flex items-center my-6 relative">
-              {steps.map((step, index) => (
-                <React.Fragment key={step.path}>
-                  <div className="flex flex-col items-center">
-                    <div 
-                      className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
-                    >
-                      {index + 1}
-                    </div>
-                    <button
-                      className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
-                      onClick={() => navigate(step.path)}
-                    >
-                      {step.name}
-                    </button>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className="flex-1 border-dotted border-t-2 border-gray-400 mx-2"></div>
-                  )}
-                </React.Fragment>
-              ))}
+      {/* Progress Bar */}
+      <div className="w-full max-w-2xl flex items-center my-6 relative">
+        {steps.map((step, index) => (
+          <React.Fragment key={step.path}>
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
+              >
+                {index + 1}
+              </div>
+              <button
+                className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
+                onClick={() => navigate(step.path)}
+              >
+                {step.name}
+              </button>
             </div>
-      
+            {index < steps.length - 1 && (
+              <div className="flex-1 border-dotted border-t-2 border-gray-400 mx-2"></div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+
 
       <div className="relative z-10 max-w-4xl mx-auto py-4">
         <div className="text-center mb-12">
@@ -162,18 +162,16 @@ const VitalsMeasurementWeight = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold">{t('weight_measurement.weight')}</span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
-              <button 
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
-                    weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`} 
+                <button
+                  className={`flex-1 py-1 rounded-md text-sm font-bold ${weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setWeightUnit('kg')}
                 >
                   kg
                 </button>
-                <button 
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
-                    weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`} 
+                <button
+                  className={`flex-1 py-1 rounded-md text-sm font-bold ${weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setWeightUnit('lbs')}
                 >
                   lbs
@@ -190,7 +188,7 @@ const VitalsMeasurementWeight = () => {
           </div>
 
           <div className="flex-1 flex justify-center">
-            <img 
+            <img
               src="/weight-scale.gif"  // Change this to the correct GIF path
               alt="Weight Measurement in progress"
               className="w-48 h-48 object-contain" // Adjust size if needed
@@ -199,7 +197,7 @@ const VitalsMeasurementWeight = () => {
 
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-            <span className="text-primary font-bold">{t('weight_measurement.bmi')}</span>
+              <span className="text-primary font-bold">{t('weight_measurement.bmi')}</span>
               <button className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold" onClick={() => setShowBmiChart(true)}>
                 {t('weight_measurement.view_bmi_chart')}
               </button>
