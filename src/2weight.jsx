@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Phone, QrCode } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setWeight } from './redux/vitalsSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
-import { ChevronDown } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
-
 
 const steps = [
   { name: 'Height', path: '/1Height' },
   { name: 'Weight', path: '/2Weight' },
   { name: 'Blood Pressure', path: '/3BloodPressure' },
-  { name: 'Temperature', path: '/4Temp' }
+  { name: 'Temperature', path: '/4Temp' },
+  { name: 'Glucose', path: '/5Glucose' },
+  { name: 'SpO2', path: '/3SpO2' },
+  { name: 'Summary', path: '/summary' },
 ];
 
-
 const VitalsMeasurementWeight = () => {
+  const dispatch = useDispatch();
+  const weight = useSelector((state) => state.vitals.weight);
   const [weightUnit, setWeightUnit] = useState('kg');
-  const [weight, setWeight] = useState('70');
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -25,14 +27,17 @@ const VitalsMeasurementWeight = () => {
   const [weather, setWeather] = useState(null);
   const [bmi, setBmi] = useState(null);
   const [showBmiChart, setShowBmiChart] = useState(false);
-
   const location = useLocation();
 
-  const currentStep = steps.findIndex(step => step.path === location.pathname);
+  const currentStep = steps.findIndex((step) => step.path === location.pathname);
 
   const languages = {
     en: { flag: '/usa.png', label: 'English' },
     ur: { flag: '/pk.png', label: 'اردو' },
+  };
+
+  const moveNext = () => {
+    navigate(steps[currentStep + 1].path);
   };
 
   useEffect(() => {
@@ -43,7 +48,9 @@ const VitalsMeasurementWeight = () => {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`);
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
+        );
         const data = await response.json();
         setWeather(data.main.temp);
       } catch (error) {
@@ -59,6 +66,7 @@ const VitalsMeasurementWeight = () => {
   };
 
   const convertWeight = (value) => {
+    if (!value) return "";
     if (weightUnit === 'lbs') {
       return (value * 2.20462).toFixed(1);
     }
@@ -75,7 +83,7 @@ const VitalsMeasurementWeight = () => {
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
           backgroundImage: `url('./public/bgPattern.svg')`,
-          backgroundRepeat: 'repeat'
+          backgroundRepeat: 'repeat',
         }}
       />
       <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
@@ -83,7 +91,9 @@ const VitalsMeasurementWeight = () => {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
             <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-            <span className="text-sm font-bold">{weather !== null ? `${weather}° C` : "--° C"}</span>
+            <span className="text-sm font-bold">
+              {weather !== null ? `${weather}° C` : "--° C"}
+            </span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="flex flex-col items-center text-white">
@@ -128,12 +138,18 @@ const VitalsMeasurementWeight = () => {
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${
+                  index === currentStep
+                    ? 'border-primary text-primary'
+                    : 'border-gray-400 text-gray-400'
+                }`}
               >
                 {index + 1}
               </div>
               <button
-                className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
+                className={`text-sm font-bold ${
+                  index === currentStep ? 'text-primary' : 'text-gray-400'
+                }`}
                 onClick={() => navigate(step.path)}
               >
                 {step.name}
@@ -145,7 +161,6 @@ const VitalsMeasurementWeight = () => {
           </React.Fragment>
         ))}
       </div>
-
 
       <div className="relative z-10 max-w-4xl mx-auto py-4">
         <div className="text-center mb-12">
@@ -160,18 +175,22 @@ const VitalsMeasurementWeight = () => {
         <div className="flex justify-between items-center gap-8 mb-12">
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold">{t('weight_measurement.weight')}</span>
+              <span className="text-primary font-bold">
+                {t('weight_measurement.weight')}
+              </span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
                 <button
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
-                    }`}
+                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
+                    weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
+                  }`}
                   onClick={() => setWeightUnit('kg')}
                 >
                   kg
                 </button>
                 <button
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
-                    }`}
+                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
+                    weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
+                  }`}
                   onClick={() => setWeightUnit('lbs')}
                 >
                   lbs
@@ -181,28 +200,37 @@ const VitalsMeasurementWeight = () => {
             <input
               type="text"
               value={convertWeight(weight)}
-              onChange={(e) => setWeight(e.target.value)}
+              onChange={(e) => dispatch(setWeight(e.target.value))}
               className="text-5xl bg-transparent w-full text-white outline-none"
             />
-            <span className="text-2xl text-gray-400">{weightUnit.toUpperCase()}</span>
+            <span className="text-2xl text-gray-400">
+              {weightUnit.toUpperCase()}
+            </span>
           </div>
 
           <div className="flex-1 flex justify-center">
             <img
               src="/weight-scale.gif"  // Change this to the correct GIF path
               alt="Weight Measurement in progress"
-              className="w-48 h-48 object-contain" // Adjust size if needed
+              className="w-48 h-48 object-contain"
             />
           </div>
 
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold">{t('weight_measurement.bmi')}</span>
-              <button className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold" onClick={() => setShowBmiChart(true)}>
+              <span className="text-primary font-bold">
+                {t('weight_measurement.bmi')}
+              </span>
+              <button
+                className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold"
+                onClick={() => setShowBmiChart(true)}
+              >
                 {t('weight_measurement.view_bmi_chart')}
               </button>
             </div>
-            <div className="text-5xl text-white">{bmi ? bmi : 'N/A'}</div>
+            <div className="text-5xl text-white">
+              {bmi ? bmi : 'N/A'}
+            </div>
           </div>
         </div>
 
@@ -211,10 +239,16 @@ const VitalsMeasurementWeight = () => {
         </p>
 
         <div className="flex flex-col gap-4 max-w-md mx-auto">
-          <button className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors">
+          <button
+            onClick={moveNext}
+            className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors"
+          >
             {t('vitals_measurement.next')}
           </button>
-          <button className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors">
+          <button
+            onClick={moveNext}
+            className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors"
+          >
             {t('vitals_measurement.skip')}
           </button>
         </div>
@@ -223,7 +257,10 @@ const VitalsMeasurementWeight = () => {
       {showBmiChart && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-4/6 text-center relative">
-            <button className="absolute top-2 right-2 text-gray-500" onClick={() => setShowBmiChart(false)}>
+            <button
+              className="absolute top-2 right-2 text-gray-500"
+              onClick={() => setShowBmiChart(false)}
+            >
               ✕
             </button>
             <h2 className="text-xl font-bold mb-4">BMI Chart</h2>
@@ -237,18 +274,26 @@ const VitalsMeasurementWeight = () => {
           <div className="flex items-center gap-3">
             <Phone size={20} className="text-primary" />
             <div>
-              <p className="text-sm text-white">{t('vitals_measurement.need_help')}</p>
+              <p className="text-sm text-white">
+                {t('vitals_measurement.need_help')}
+              </p>
               <p className="text-primary text-sm underline hover:text-secondary-accent cursor-pointer">
                 {t('vitals_measurement.contact_us')}
               </p>
             </div>
           </div>
-          <p className="text-cta hidden md:block">{t('vitals_measurement.footer')}</p>
+          <p className="text-cta hidden md:block">
+            {t('vitals_measurement.footer')}
+          </p>
           <div className="flex items-center gap-3">
             <QrCode size={40} className="text-primary" />
             <div>
-              <p className="text-sm text-white">{t('vitals_measurement.get_app')}</p>
-              <p className="text-primary text-sm">{t('vitals_measurement.download_app')}</p>
+              <p className="text-sm text-white">
+                {t('vitals_measurement.get_app')}
+              </p>
+              <p className="text-primary text-sm">
+                {t('vitals_measurement.download_app')}
+              </p>
             </div>
           </div>
         </div>

@@ -35,9 +35,9 @@ const App = () => {
           <Route path='/1Height' element={<Height />} />
           <Route path='/2Weight' element={<Weight />} />
           <Route path='/3Spo2' element={<Spo2 />} />
-          <Route path='/BloodPressure' element={<BP />} />
+          <Route path='/3BloodPressure' element={<BP />} />
           <Route path='/4Temp' element={<Temperature />} />
-          <Route path='/Glucose' element={<Glucose />} />
+          <Route path='/5Glucose' element={<Glucose />} />
           <Route path='/summary' element={<Summary />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
@@ -52,7 +52,7 @@ const App = () => {
             } 
           />
           <Route path="/temperature" element={<TemperatureDisplay />} />
-          <Route path="/" element={<Kiosk/>} />
+          <Route path="/" element={<ReviveWelcomeScreen />} />
         </Routes>
       </Router>
     </Provider>

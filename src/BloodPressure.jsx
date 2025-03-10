@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Phone, QrCode } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setBloodPressure } from './redux//vitalsSlice'; // Adjust the path as needed
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import i18n from './i18n';
-import { ChevronDown } from 'lucide-react';
 
 const steps = [
   { name: 'Height', path: '/1Height' },
   { name: 'Weight', path: '/2Weight' },
   { name: 'Blood Pressure', path: '/3BloodPressure' },
-  { name: 'Temperature', path: '/4Temp' }
+  { name: 'Temperature', path: '/4Temp' },
+  { name: 'Glucose', path: '/5Glucose' },
+  { name: 'SpO2', path: '/3SpO2' },
+  { name: 'Summary', path: '/summary' },
 ];
 
-
 const VitalsMeasurementBP = () => {
-  const [systolic, setSystolic] = useState('120');
-  const [diastolic, setDiastolic] = useState('80');
+  const dispatch = useDispatch();
+  const bloodPressure = useSelector((state) => state.vitals.bloodPressure);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -26,7 +28,11 @@ const VitalsMeasurementBP = () => {
   const [showChart, setShowChart] = useState(false);
   const location = useLocation();
 
-  const currentStep = steps.findIndex(step => step.path === location.pathname);
+  const currentStep = steps.findIndex((step) => step.path === location.pathname);
+
+  const moveNext = () => {
+    navigate(steps[currentStep + 1].path);
+  };
 
   const languages = {
     en: { flag: '/usa.png', label: 'English' },
@@ -41,11 +47,13 @@ const VitalsMeasurementBP = () => {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`);
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
+        );
         const data = await response.json();
         setWeather(data.main.temp);
       } catch (error) {
-        console.error("Error fetching weather data:", error);
+        console.error('Error fetching weather data:', error);
       }
     };
     fetchWeather();
@@ -62,7 +70,7 @@ const VitalsMeasurementBP = () => {
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
           backgroundImage: `url('./public/bgPattern.svg')`,
-          backgroundRepeat: 'repeat'
+          backgroundRepeat: 'repeat',
         }}
       />
       <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
@@ -70,7 +78,9 @@ const VitalsMeasurementBP = () => {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
             <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-            <span className="text-sm font-bold">{weather !== null ? `${weather}° C` : "--° C"}</span>
+            <span className="text-sm font-bold">
+              {weather !== null ? `${weather}° C` : "--° C"}
+            </span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="flex flex-col items-center text-white">
@@ -114,13 +124,19 @@ const VitalsMeasurementBP = () => {
         {steps.map((step, index) => (
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
-              <div 
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${
+                  index === currentStep
+                    ? 'border-primary text-primary'
+                    : 'border-gray-400 text-gray-400'
+                }`}
               >
                 {index + 1}
               </div>
               <button
-                className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
+                className={`text-sm font-bold ${
+                  index === currentStep ? 'text-primary' : 'text-gray-400'
+                }`}
                 onClick={() => navigate(step.path)}
               >
                 {step.name}
@@ -133,35 +149,49 @@ const VitalsMeasurementBP = () => {
         ))}
       </div>
 
-
       <div className="relative z-10 max-w-4xl mx-auto py-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
             {t('vitals_measurement.title')}
           </h1>
-          <p className="text-gray-300">
-            {t('vitals_measurement.instructions')}
-          </p>
+          <p className="text-gray-300">{t('vitals_measurement.instructions')}</p>
         </div>
 
         <div className="flex justify-between items-center gap-8 mb-12">
+          {/* Blood Pressure Panel */}
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold">{t('blood_pressure.sys_dia')}</span>
             </div>
-            <div className="text-5xl bg-transparent w-full text-white outline-none">
-
+            <div className="flex items-center">
+              <input
+                type="text"
+                value={bloodPressure.systolic || ''}
+                onChange={(e) =>
+                  dispatch(
+                    setBloodPressure({
+                      systolic: e.target.value,
+                      diastolic: bloodPressure.diastolic,
+                    })
+                  )
+                }
+                className="text-5xl bg-transparent text-white outline-none w-full"
+              />
+              <span className="text-5xl mx-2 text-white">/</span>
+              <input
+                type="text"
+                value={bloodPressure.diastolic || ''}
+                onChange={(e) =>
+                  dispatch(
+                    setBloodPressure({
+                      systolic: bloodPressure.systolic,
+                      diastolic: e.target.value,
+                    })
+                  )
+                }
+                className="text-5xl bg-transparent text-white outline-none w-full"
+              />
             </div>
-            <input
-              type="text"
-              value={`${systolic}/${diastolic}`}
-              onChange={(e) => {
-                const [sys, dia] = e.target.value.split('/');
-                setSystolic(sys);
-                setDiastolic(dia);
-              }}
-              className="text-5xl bg-transparent w-full text-white outline-none"
-            />
             <span className="text-2xl text-gray-400">mmHg</span>
           </div>
 
@@ -169,18 +199,25 @@ const VitalsMeasurementBP = () => {
             <img
               src="/blood-pressure.gif"  // Change this to the correct GIF path
               alt="Blood Pressure Measurement in progress"
-              className="w-48 h-48 object-contain" // Adjust size if needed
+              className="w-48 h-48 object-contain"
             />
           </div>
 
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold">{t('blood_pressure.bpm')}</span>
-              <button className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold" onClick={() => setShowChart(true)}>
+              <span className="text-primary font-bold">
+                {t('blood_pressure.bpm')}
+              </span>
+              <button
+                className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold"
+                onClick={() => setShowChart(true)}
+              >
                 {t('blood_pressure.view_chart')}
               </button>
             </div>
-            <div className="text-5xl text-white">{heartRate ? heartRate : 'N/A'}</div>
+            <div className="text-5xl text-white">
+              {heartRate ? heartRate : 'N/A'}
+            </div>
             <span className="text-2xl text-gray-400">BPM</span>
           </div>
         </div>
@@ -190,10 +227,16 @@ const VitalsMeasurementBP = () => {
         </p>
 
         <div className="flex flex-col gap-4 max-w-md mx-auto">
-          <button className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors">
+          <button
+            onClick={moveNext}
+            className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors"
+          >
             {t('vitals_measurement.next')}
           </button>
-          <button className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors" onClick={() => navigate(steps[currentStep + 1]?.path || '/4Temp')}>
+          <button
+            onClick={moveNext}
+            className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors"
+          >
             {t('vitals_measurement.skip')}
           </button>
         </div>
@@ -202,7 +245,10 @@ const VitalsMeasurementBP = () => {
       {showChart && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg text-center relative">
-            <button className="absolute top-2 right-2 text-gray-500" onClick={() => setShowChart(false)}>
+            <button
+              className="absolute top-2 right-2 text-gray-500"
+              onClick={() => setShowChart(false)}
+            >
               ✕
             </button>
             <img src="/heart-rate.png" alt="Heart Rate Chart" className="h-auto" />

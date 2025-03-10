@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Phone, QrCode } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSpo2 } from './redux/vitalsSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import i18n from './i18n';
-import { ChevronDown } from 'lucide-react';
 
 const steps = [
     { name: 'Height', path: '/1Height' },
     { name: 'Weight', path: '/2Weight' },
-    { name: 'Spo2', path: '/3Spo2' },
-    { name: 'Blood Pressure', path: '/BloodPressure' },
-    { name: 'Temperature', path: '/4Temp' }
+    { name: 'Blood Pressure', path: '/3BloodPressure' },
+    { name: 'Temperature', path: '/4Temp' },
+    { name: 'Glucose', path: '/5Glucose' },
+    { name: 'SpO2', path: '/3SpO2' },
+    { name: 'Summary', path: '/summary' },
 ];
 
-
 const VitalsMeasurementOxygen = () => {
-    const [oxygenLevel, setOxygenLevel] = useState('98');
-
+    const dispatch = useDispatch();
+    // Read oxygen level from Redux store (using the 'spo2' property)
+    const oxygenLevel = useSelector((state) => state.vitals.spo2) || "";
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -28,6 +30,10 @@ const VitalsMeasurementOxygen = () => {
     const location = useLocation();
 
     const currentStep = steps.findIndex(step => step.path === location.pathname);
+
+    const moveNext = () => {
+        navigate(steps[currentStep + 1].path);
+    };
 
     const languages = {
         en: { flag: '/usa.png', label: 'English' },
@@ -42,7 +48,9 @@ const VitalsMeasurementOxygen = () => {
     useEffect(() => {
         const fetchWeather = async () => {
             try {
-                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`);
+                const response = await fetch(
+                  `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
+                );
                 const data = await response.json();
                 setWeather(data.main.temp);
             } catch (error) {
@@ -71,7 +79,9 @@ const VitalsMeasurementOxygen = () => {
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-2 text-white text-xl">
                         <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-                        <span className="text-sm font-bold">{weather !== null ? `${weather}° C` : "--° C"}</span>
+                        <span className="text-sm font-bold">
+                            {weather !== null ? `${weather}° C` : "--° C"}
+                        </span>
                     </div>
                     <div className="h-8 w-px bg-white/20" />
                     <div className="flex flex-col items-center text-white">
@@ -115,7 +125,7 @@ const VitalsMeasurementOxygen = () => {
                 {steps.map((step, index) => (
                     <React.Fragment key={step.path}>
                         <div className="flex flex-col items-center">
-                            <div
+                            <div 
                                 className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
                             >
                                 {index + 1}
@@ -134,7 +144,6 @@ const VitalsMeasurementOxygen = () => {
                 ))}
             </div>
 
-
             <div className="relative z-10 max-w-4xl mx-auto py-4">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-white mb-4">
@@ -146,6 +155,7 @@ const VitalsMeasurementOxygen = () => {
                 </div>
 
                 <div className="flex justify-between items-center gap-8 mb-12">
+                    {/* Oxygen Panel */}
                     <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-primary font-bold">{t('oxygen.label')}</span>
@@ -153,11 +163,10 @@ const VitalsMeasurementOxygen = () => {
                         <input
                             type="text"
                             value={oxygenLevel}
-                            onChange={(e) => setOxygenLevel(e.target.value)}
+                            onChange={(e) => dispatch(setSpo2(e.target.value))}
                             className="text-5xl bg-transparent w-full text-white outline-none"
                         />
                         <span className="text-2xl text-gray-400">% SpO₂</span>
-
                     </div>
 
                     <div className="flex-1 flex justify-center">
@@ -171,11 +180,16 @@ const VitalsMeasurementOxygen = () => {
                     <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-primary font-bold">{t('oxygen.heart_rate')}</span>
-                            <button className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold" onClick={() => setShowChart(true)}>
+                            <button
+                                className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold"
+                                onClick={() => setShowChart(true)}
+                            >
                                 {t('blood_pressure.view_chart')}
                             </button>
                         </div>
-                        <div className="text-5xl text-white mb-4">{heartRate ? heartRate : 'N/A'}</div>
+                        <div className="text-5xl text-white mb-4">
+                            {heartRate ? heartRate : 'N/A'}
+                        </div>
                         <span className="text-2xl text-gray-400">BPM</span>
                     </div>
                 </div>
@@ -185,10 +199,16 @@ const VitalsMeasurementOxygen = () => {
                 </p>
 
                 <div className="flex flex-col gap-4 max-w-md mx-auto">
-                    <button className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors">
+                    <button
+                        onClick={moveNext}
+                        className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors"
+                    >
                         {t('vitals_measurement.next')}
                     </button>
-                    <button className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors" onClick={() => navigate(steps[currentStep + 1]?.path || '/4Temp')}>
+                    <button
+                        onClick={moveNext}
+                        className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors"
+                    >
                         {t('vitals_measurement.skip')}
                     </button>
                 </div>
@@ -197,7 +217,10 @@ const VitalsMeasurementOxygen = () => {
             {showChart && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg text-center relative">
-                        <button className="absolute top-2 right-2 text-gray-500" onClick={() => setShowChart(false)}>
+                        <button
+                            className="absolute top-2 right-2 text-gray-500"
+                            onClick={() => setShowChart(false)}
+                        >
                             ✕
                         </button>
                         <img src="/heart-rate.png" alt="Heart Rate Chart" className="h-auto" />
