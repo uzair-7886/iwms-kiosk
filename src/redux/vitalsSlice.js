@@ -10,6 +10,7 @@ const initialState = {
   temperature: null,      // in Centigrade (°C)
   glucose: null,          // glucose level
   spo2: null,             // oxygen level (%)
+  heartRate: null,        // in BPM
 };
 
 const vitalsSlice = createSlice({
@@ -35,6 +36,9 @@ const vitalsSlice = createSlice({
     setSpo2(state, action) {
       state.spo2 = action.payload;
     },
+    setHeartRate(state, action) {
+      state.heartRate = action.payload;
+    },
     resetVitals(state) {
       state.height = null;
       state.weight = null;
@@ -42,6 +46,7 @@ const vitalsSlice = createSlice({
       state.temperature = null;
       state.glucose = null;
       state.spo2 = null;
+      state.heartRate = null;
     },
   },
 });
@@ -53,6 +58,7 @@ export const {
   setTemperature,
   setGlucose,
   setSpo2,
+  setHeartRate,
   resetVitals,
 } = vitalsSlice.actions;
 

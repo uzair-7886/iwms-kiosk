@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setBloodPressure } from './redux//vitalsSlice'; // Adjust the path as needed
+import { setBloodPressure, setHeartRate } from './redux/vitalsSlice'; // Adjust the path as needed
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -19,12 +19,12 @@ const steps = [
 const VitalsMeasurementBP = () => {
   const dispatch = useDispatch();
   const bloodPressure = useSelector((state) => state.vitals.bloodPressure);
+  const heartRate = useSelector((state) => state.vitals.heartRate);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [time, setTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
-  const [heartRate, setHeartRate] = useState(null);
   const [showChart, setShowChart] = useState(false);
   const location = useLocation();
 
@@ -48,7 +48,7 @@ const VitalsMeasurementBP = () => {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
+          'https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8'
         );
         const data = await response.json();
         setWeather(data.main.temp);
@@ -69,7 +69,7 @@ const VitalsMeasurementBP = () => {
       <div
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
-          backgroundImage: `url('./public/bgPattern.svg')`,
+          backgroundImage: "url('./public/bgPattern.svg')",
           backgroundRepeat: 'repeat',
         }}
       />
@@ -203,11 +203,10 @@ const VitalsMeasurementBP = () => {
             />
           </div>
 
+          {/* Heart Rate Panel as input */}
           <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold">
-                {t('blood_pressure.bpm')}
-              </span>
+              <span className="text-primary font-bold">{t('blood_pressure.bpm')}</span>
               <button
                 className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold"
                 onClick={() => setShowChart(true)}
@@ -215,9 +214,12 @@ const VitalsMeasurementBP = () => {
                 {t('blood_pressure.view_chart')}
               </button>
             </div>
-            <div className="text-5xl text-white">
-              {heartRate ? heartRate : 'N/A'}
-            </div>
+            <input
+              type="text"
+              value={heartRate !== null ? heartRate : ''}
+              onChange={(e) => dispatch(setHeartRate(e.target.value))}
+              className="text-5xl bg-transparent text-white outline-none w-full"
+            />
             <span className="text-2xl text-gray-400">BPM</span>
           </div>
         </div>

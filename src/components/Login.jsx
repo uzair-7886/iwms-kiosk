@@ -57,7 +57,7 @@ const LoginScreen = () => {
 
           <p className="text-text">
             Don't have an account?{' '}
-            <a href="#" className="text-primary hover:underline">Sign Up</a>
+            <a href="/Signup" className="text-primary hover:underline">Sign Up</a>
           </p>
         </div>
       ) : (

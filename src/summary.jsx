@@ -26,7 +26,7 @@ const SummaryPage = () => {
   const [weather, setWeather] = useState(null);
 
   // Get vitals from Redux store
-  const { weight, bloodPressure, temperature, glucose, spo2 } = useSelector((state) => state.vitals);
+  const { weight, bloodPressure, temperature, glucose, spo2, heartRate } = useSelector((state) => state.vitals);
 
   const languages = {
     en: { flag: '/usa.png', label: 'English' },
@@ -131,7 +131,7 @@ const SummaryPage = () => {
       // Heart rate is not stored in Redux; always show NA.
       icon: <img src="/heart-rate.svg" alt="Heart Rate" />,
       label: t('summary.heart_rate'),
-      value: "NA",
+      value: heartRate?`${heartRate} bpm`:"NA",
       normal: "60-100 bpm",
       abnormal: false,
     },
@@ -182,7 +182,6 @@ const SummaryPage = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl font-bold mb-2 text-primary">{t('summary.title')}</h1>
           <p className="text-white text-lg mb-6">
-            {t('summary.desc')}{" "}
             {vitals.some((v) => v.abnormal) && (
               <span className="text-red-500">
                 (Some vitals are not in the normal range)
