@@ -85,19 +85,19 @@ const VitalsMeasurement = () => {
           backgroundRepeat: 'repeat',
         }}
       />
-      <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
+      <nav className="flex justify-between items-center px-12 py-12 w-full max-w-7xl mx-auto">
         <img src="/logo-nav.svg" alt="Reviva" className="h-8" />
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
             <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-            <span className="text-sm font-bold">
+            <span className="text-lg font-bold">
               {weather !== null ? `${weather}° C` : "--° C"}
             </span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="flex flex-col items-center text-white">
-            <span className="text-sm font-bold">{time.toLocaleTimeString()}</span>
-            <span className="text-sm opacity-80">{time.toLocaleDateString()}</span>
+            <span className="text-lg font-bold">{time.toLocaleTimeString()}</span>
+            <span className="text-lg opacity-80">{time.toLocaleDateString()}</span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="relative">
@@ -110,7 +110,7 @@ const VitalsMeasurement = () => {
                 alt={`${i18n.language} flag`}
                 className="w-6 h-6 rounded-full"
               />
-              <span className="text-sm">{languages[i18n.language].label}</span>
+              <span className="text-lg">{languages[i18n.language].label}</span>
               <ChevronDown size={16} />
             </button>
             {dropdownOpen && (
@@ -122,7 +122,7 @@ const VitalsMeasurement = () => {
                     onClick={() => handleLanguageChange(lang)}
                   >
                     <img src={flag} alt={label} className="w-5 h-5 rounded-full" />
-                    <span className="text-white text-sm">{label}</span>
+                    <span className="text-white text-lg">{label}</span>
                   </div>
                 ))}
               </div>
@@ -131,23 +131,21 @@ const VitalsMeasurement = () => {
         </div>
       </nav>
       {/* Progress Bar */}
-      <div className="w-full max-w-2xl flex items-center my-6 relative">
+      <div className="w-full max-w-4xl flex items-center my-20 relative">
         {steps.map((step, index) => (
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${
-                  index === currentStep
-                    ? 'border-primary text-primary'
-                    : 'border-gray-400 text-gray-400'
-                }`}
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${index === currentStep
+                  ? 'border-primary text-primary'
+                  : 'border-gray-400 text-gray-400'
+                  }`}
               >
                 {index + 1}
               </div>
               <button
-                className={`text-sm font-bold ${
-                  index === currentStep ? 'text-primary' : 'text-gray-400'
-                }`}
+                className={`text-md font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
+                  }`}
                 onClick={() => navigate(step.path)}
               >
                 {step.name}
@@ -160,33 +158,38 @@ const VitalsMeasurement = () => {
         ))}
       </div>
       <div className="relative z-10 max-w-4xl mx-auto py-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
+        <div className="text-center mb-20">
+          <h1 className="text-5xl font-bold text-white mb-4">
             {t('vitals_measurement.title')}
           </h1>
-          <p className="text-gray-300">
+          <p className="text-gray-300 text-xl">
             {t('vitals_measurement.instructions')}
           </p>
         </div>
-        <div className="flex justify-between items-center gap-8 mb-12">
-          <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
+        <div className="flex flex-col justify-between items-center gap-8 mb-12">
+          <div className="flex-1 flex justify-center">
+            <img
+              src="/camera.gif"
+              alt="Face detection in progress"
+              className="w-64 h-64 object-contain"
+            />
+          </div>
+          <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold">
+              <span className="text-primary font-bold text-2xl">
                 {t('vitals_measurement.height')}
               </span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
                 <button
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
-                    heightUnit === 'cm' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'cm' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setHeightUnit('cm')}
                 >
                   cm
                 </button>
                 <button
-                  className={`flex-1 py-1 rounded-md text-sm font-bold ${
-                    heightUnit === 'feet' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'feet' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setHeightUnit('feet')}
                 >
                   feet
@@ -205,14 +208,8 @@ const VitalsMeasurement = () => {
               {heightUnit.toUpperCase()}
             </span>
           </div>
-          <div className="flex-1 flex justify-center">
-            <img
-              src="/camera.gif"
-              alt="Face detection in progress"
-              className="w-48 h-48 object-contain"
-            />
-          </div>
-          <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
+
+          <div className="bg-extrablack rounded-xl p-6 border h-[600px] w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold">
                 {t('vitals_measurement.face_id')}
@@ -228,19 +225,19 @@ const VitalsMeasurement = () => {
             </div>
           </div>
         </div>
-        <p className="text-center text-gray-300 mb-8">
+        <p className="text-center text-gray-300 text-xl mb-12">
           {t('vitals_measurement.camera_instruction')}
         </p>
-        <div className="flex flex-col gap-4 max-w-md mx-auto">
+        <div className="flex flex-col gap-4 max-w-auto mx-auto">
           <button
             onClick={moveNext}
-            className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors"
+            className="w-full py-6 bg-primary mb-4 rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors"
           >
             {t('vitals_measurement.next')}
           </button>
           <button
             onClick={moveNext}
-            className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors"
+            className="w-full py-6 border border-primary rounded-lg text-primary font-medium text-lg hover:bg-primary/30 transition-colors"
           >
             {t('vitals_measurement.skip')}
           </button>

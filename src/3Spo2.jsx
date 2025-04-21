@@ -49,7 +49,7 @@ const VitalsMeasurementOxygen = () => {
         const fetchWeather = async () => {
             try {
                 const response = await fetch(
-                  `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
+                    `https://api.openweathermap.org/data/2.5/weather?q=Islamabad&units=metric&appid=d56eaf1086fc151f4be787d9926ed8f8`
                 );
                 const data = await response.json();
                 setWeather(data.main.temp);
@@ -74,19 +74,19 @@ const VitalsMeasurementOxygen = () => {
                     backgroundRepeat: 'repeat'
                 }}
             />
-            <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
+            <nav className="flex justify-between items-center px-12 py-12 w-full max-w-7xl mx-auto">
                 <img src="/logo-nav.svg" alt="Reviva" className="h-8" />
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-2 text-white text-xl">
                         <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-                        <span className="text-sm font-bold">
+                        <span className="text-lg font-bold">
                             {weather !== null ? `${weather}° C` : "--° C"}
                         </span>
                     </div>
                     <div className="h-8 w-px bg-white/20" />
                     <div className="flex flex-col items-center text-white">
-                        <span className="text-sm font-bold">{time.toLocaleTimeString()}</span>
-                        <span className="text-sm opacity-80">{time.toLocaleDateString()}</span>
+                        <span className="text-lg font-bold">{time.toLocaleTimeString()}</span>
+                        <span className="text-lg opacity-80">{time.toLocaleDateString()}</span>
                     </div>
                     <div className="h-8 w-px bg-white/20" />
                     <div className="relative">
@@ -99,7 +99,7 @@ const VitalsMeasurementOxygen = () => {
                                 alt={`${i18n.language} flag`}
                                 className="w-6 h-6 rounded-full"
                             />
-                            <span className="text-sm">{languages[i18n.language].label}</span>
+                            <span className="text-lg">{languages[i18n.language].label}</span>
                             <ChevronDown size={16} />
                         </button>
                         {dropdownOpen && (
@@ -111,7 +111,7 @@ const VitalsMeasurementOxygen = () => {
                                         onClick={() => handleLanguageChange(lang)}
                                     >
                                         <img src={flag} alt={label} className="w-5 h-5 rounded-full" />
-                                        <span className="text-white text-sm">{label}</span>
+                                        <span className="text-white text-lg">{label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -121,17 +121,17 @@ const VitalsMeasurementOxygen = () => {
             </nav>
 
             {/* Progress Bar */}
-            <div className="w-full max-w-2xl flex items-center my-6 relative">
+            <div className="w-full max-w-4xl flex items-center my-20 relative">
                 {steps.map((step, index) => (
                     <React.Fragment key={step.path}>
                         <div className="flex flex-col items-center">
-                            <div 
-                                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-sm font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
+                            <div
+                                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
                             >
                                 {index + 1}
                             </div>
                             <button
-                                className={`text-sm font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
+                                className={`text-md font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'}`}
                                 onClick={() => navigate(step.path)}
                             >
                                 {step.name}
@@ -146,19 +146,26 @@ const VitalsMeasurementOxygen = () => {
 
             <div className="relative z-10 max-w-4xl mx-auto py-4">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-white mb-4">
+                    <h1 className="text-5xl font-bold text-white mb-4">
                         {t('vitals_measurement.title')}
                     </h1>
-                    <p className="text-gray-300">
+                    <p className="text-gray-300 text-xl">
                         {t('vitals_measurement.instructions')}
                     </p>
                 </div>
 
-                <div className="flex justify-between items-center gap-8 mb-12">
+                <div className="flex flex-col justify-between items-center gap-8 mb-12">
+                    <div className="flex-1 flex justify-center">
+                        <img
+                            src="/oxygen.gif"  // Change this to the correct GIF path
+                            alt="Spo2 Level Measurement in progress"
+                            className="w-64 h-64 object-contain" // Adjust size if needed
+                        />
+                    </div>
                     {/* Oxygen Panel */}
-                    <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
+                    <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-primary font-bold">{t('oxygen.label')}</span>
+                            <span className="text-primary font-bold text-2xl">{t('oxygen.label')}</span>
                         </div>
                         <input
                             type="text"
@@ -168,46 +175,37 @@ const VitalsMeasurementOxygen = () => {
                         />
                         <span className="text-2xl text-gray-400">% SpO₂</span>
                     </div>
-
-                    <div className="flex-1 flex justify-center">
-                        <img
-                            src="/oxygen.gif"  // Change this to the correct GIF path
-                            alt="Spo2 Level Measurement in progress"
-                            className="w-48 h-48 object-contain" // Adjust size if needed
-                        />
-                    </div>
-
-                    <div className="bg-extrablack rounded-xl p-6 border h-[200px] border-white/35 flex-1">
+                    <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-primary font-bold">{t('oxygen.heart_rate')}</span>
+                            <span className="text-primary font-bold text-2xl">{t('oxygen.heart_rate')}</span>
                             <button
-                                className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-sm text-white font-bold"
+                                className="px-3 py-1 rounded bg-primary hover:bg-secondary-accent text-lg text-white font-bold"
                                 onClick={() => setShowChart(true)}
                             >
                                 {t('blood_pressure.view_chart')}
                             </button>
                         </div>
-                        <div className="text-5xl text-white mb-4">
+                        <div className="text-4xl text-white mb-4">
                             {heartRate ? heartRate : 'N/A'}
                         </div>
                         <span className="text-2xl text-gray-400">BPM</span>
                     </div>
                 </div>
 
-                <p className="text-center text-gray-300 mb-8">
+                <p className="text-center text-gray-300 mb-8 text-xl max-w-4xl">
                     {t('oxygen.instruction')}
                 </p>
 
-                <div className="flex flex-col gap-4 max-w-md mx-auto">
+                <div className="flex flex-col gap-4 mx-auto">
                     <button
                         onClick={moveNext}
-                        className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors"
+                        className="w-full py-6 mb-4 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors"
                     >
                         {t('vitals_measurement.next')}
                     </button>
                     <button
                         onClick={moveNext}
-                        className="w-full py-4 border border-primary rounded-lg text-primary font-medium hover:bg-primary/30 transition-colors"
+                        className="w-full py-6 border border-primary rounded-lg text-primary font-medium text-lg hover:bg-primary/30 transition-colors"
                     >
                         {t('vitals_measurement.skip')}
                     </button>
