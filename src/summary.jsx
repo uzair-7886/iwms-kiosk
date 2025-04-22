@@ -146,19 +146,19 @@ const SummaryPage = () => {
           backgroundRepeat: 'repeat',
         }}
       />
-      <nav className="flex justify-between items-center px-12 py-4 w-full max-w-8xl mx-auto">
+      <nav className="flex justify-between items-center px-12 py-12 w-full max-w-7xl mx-auto">
         <img src="/logo-nav.svg" alt="Reviva" className="h-8" />
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
             <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
-            <span className="text-sm font-bold">
+            <span className="text-lg font-bold">
               {weather !== null ? `${weather}° C` : "--° C"}
             </span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="flex flex-col items-center text-white">
-            <span className="text-sm font-bold">{time.toLocaleTimeString()}</span>
-            <span className="text-sm opacity-80">{time.toLocaleDateString()}</span>
+            <span className="text-lg font-bold">{time.toLocaleTimeString()}</span>
+            <span className="text-lg opacity-80">{time.toLocaleDateString()}</span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="relative">
@@ -171,16 +171,16 @@ const SummaryPage = () => {
                 alt={`${i18n.language} flag`}
                 className="w-6 h-6 rounded-full"
               />
-              <span className="text-sm">{languages[i18n.language].label}</span>
+              <span className="text-lg">{languages[i18n.language].label}</span>
               <ChevronDown size={16} />
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="text-white p-10">
+      <div className="text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-2 text-primary">{t('summary.title')}</h1>
+          <h1 className="text-5xl font-bold text-primary mb-12">{t('summary.title')}</h1>
           <p className="text-white text-lg mb-6">
             {vitals.some((v) => v.abnormal) && (
               <span className="text-red-500">
@@ -189,21 +189,21 @@ const SummaryPage = () => {
             )}
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
           {vitals.map((vital, index) => (
             <div
               key={index}
-              className={`shadow-lg flex flex-col items-center bg-extrablack rounded-xl p-6 border ${vital.border}`}
+              className={`shadow-lg flex flex-col items-center bg-extrablack w-full rounded-xl p-6 border ${vital.border}`}
             >
               <div className={vital.color}>{vital.icon}</div>
-              <h3 className="text-lg font-semibold mt-2">{vital.label}</h3>
+              <h3 className="text-xl font-semibold mt-2">{vital.label}</h3>
               <p className={`text-2xl font-bold mt-1 ${vital.color}`}>
                 {vital.value}
               </p>
               {vital.normal && (
                 <div className="w-full mt-2">
                   <p
-                    className={`shadow-lg text-center p-2 text-sm text-gray-400 mt-2 bg-[#292E32] rounded-[6px] border ${vital.border}`}
+                    className={`shadow-lg text-center p-2 text-lg w-full text-gray-400 mt-2 bg-[#292E32] rounded-[6px] border ${vital.border}`}
                   >
                     Normal: {vital.normal}
                   </p>
@@ -214,8 +214,8 @@ const SummaryPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 w-2/6 mx-auto">
-        <button className="w-full py-4 bg-primary rounded-lg text-white font-medium hover:bg-primary/80 transition-colors">
+      <div className="flex flex-col gap-4 max-w-4xl w-full mx-auto mt-12">
+        <button className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors">
           {t('summary.next')}
         </button>
       </div>

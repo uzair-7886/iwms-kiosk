@@ -48,16 +48,16 @@ const WellnessLanding = () => {
 
     const Card = ({ image, icon, title, desc1, desc2, onClick }) => (
       <div className="bg-[#1E1E1E]/40 border border-white/35 rounded-[20px] p-6 space-y-4 hover:border-primary/35 transition-all duration-300 flex flex-col justify-between">
-        <div className="relative w-full h-48 overflow-hidden rounded-[20px]">
+        <div className="relative w-full h-64 overflow-hidden rounded-[20px]">
           <img src={image} alt={title} className="w-full h-full object-cover" />
           <div className={`absolute bottom-4 ${isUrdu ? 'right-4 flex-row-reverse' : 'left-4'} flex items-center gap-2`}>
             <div className="bg-primary/40 border-primary p-2 rounded-md w-12 h-12 flex items-center justify-center">
-              <img src={icon} alt="icon" className="w-6 h-6" />
+              <img src={icon} alt="icon" className="w-12 h-12" />
             </div>
-            <h3 className="text-white text-lg font-semibold">{title}</h3>
+            <h3 className="text-white text-2xl font-semibold">{title}</h3>
           </div>
         </div>
-        <ul className="space-y-2 mt-2 text-white">
+        <ul className="space-y-2 mt-2 text-white text-xl">
           <li className={`flex items-start gap-2 ${isUrdu ? 'flex-row-reverse' : ''}`}>
             <ChevronRight className="text-primary mt-1 flex-shrink-0" size={16} />
             <span>{desc1}</span>
@@ -67,7 +67,7 @@ const WellnessLanding = () => {
             <span>{desc2}</span>
           </li>
         </ul>
-        <button onClick={onClick} className={`flex ${isUrdu ? 'flex-row-reverse' : 'justify-between'} items-center text-primary hover:text-primary/80 hover:bg-primary/30 transition-colors mt-auto border border-primary rounded-[12px] px-4 py-2 w-full`}>
+        <button onClick={onClick} className={`flex ${isUrdu ? 'flex-row-reverse' : 'justify-between'} items-center text-primary hover:text-primary/80 hover:bg-primary/30 transition-colors mt-auto border border-primary rounded-[12px] text-xl px-4 py-2 w-full`}>
           {t('proceed')}
           <ChevronRight size={16} />
         </button>
@@ -123,13 +123,13 @@ const WellnessLanding = () => {
                 </div>
             </nav>
       <main className="px-8 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">
+        <div className="text-center mb-20">
+          <h1 className="text-5xl font-bold text-white mt-10 mb-4">
             {t('welcome')} <span className="text-primary">Reviva</span>
           </h1>
-          <p className="text-xl text-gray-300">{t('subtitle')}</p>
+          <p className="text-2xl text-gray-300">{t('subtitle')}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 gap-12 max-w-4xl mx-auto">
           <Card image="/card1.png" icon="/vitals.svg" title={t('card1.title')} desc1={t('card1.desc1')} desc2={t('card1.desc2')} onClick={() => navigate('/1Height')} />
           <Card image="/card2.png" icon="/manual-input.svg" title={t('card2.title')} desc1={t('card2.desc1')} desc2={t('card2.desc2')} />
           <Card image="/card3.png" icon="/history.svg" title={t('card3.title')} desc1={t('card3.desc1')} desc2={t('card3.desc2')} />

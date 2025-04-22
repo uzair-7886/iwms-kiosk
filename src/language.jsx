@@ -99,18 +99,18 @@ const LanguageSelectScreen = () => {
       <div 
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
-            backgroundImage: `url('./bgPattern.svg')`,
+            backgroundImage: `url('./public/bgPattern.svg')`,
             backgroundRepeat: 'repeat'
         }}
       />
-      <div className="relative z-10 text-center w-full max-w-md px-6 space-y-6">
+      <div className="relative z-10 text-center w-full max-w-2xl px-6 space-y-6">
         <div className="flex flex-col items-center space-y-8">
               <img 
                   src="/reviva-logo-full.svg" 
                   alt="Reviva Logo" 
-                  className="h-auto w-52"
+                  className="h-auto w-auto"
               />
-              <h2 className="text-2xl text-text">
+              <h2 className="text-3xl text-text pt-20 pb-20">
                   Please select your preferred language
               </h2>
         </div>
@@ -134,18 +134,18 @@ const LanguageSelectScreen = () => {
             </div>
           ))}
         </div> */}
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center pb-20">
             <LanguageSwitch />
         </div>
         
         <button 
           onClick={() => setProceed(true)}
-          className="w-full py-4 bg-primary text-secondary rounded-lg text-lg font-bold hover:bg-secondary-accent"
+          className="w-full py-4 bg-primary/20 text-white border border-primary rounded-lg text-lg font-bold hover:bg-secondary-accent"
         >
           Confirm
         </button>
         
-        <p className="text-cta mt-10">
+        <p className="text-cta mt-10 text-2xl pt-20">
           Let's take the first step toward a healthier you!
         </p>
       </div>

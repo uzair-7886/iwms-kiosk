@@ -38,14 +38,14 @@ const StartScreen = () => {
       <img 
         src="/reviva-logo-full.svg" 
         alt="Reviva Logo" 
-        className="mb-4 h-56 w-56 relative z-10"
+        className="mb-4 relative z-10"
       />
       
-      <h2 className="text-2xl text-text mb-10 text-center">
+      <h2 className="text-3xl text-text mb-10 text-center pt-12 pb-12">
         Please choose an option to get started
       </h2>
       
-      <div className="grid grid-cols-3 gap-4 w-full max-w-4xl">
+      <div className="flex flex-col gap-8 max-w-4xl">
         {options.map((option) => (
           <div 
             key={option.title} 
@@ -57,17 +57,17 @@ const StartScreen = () => {
               alt={option.title} 
               className="mx-auto mb-4 w-12 h-12 group-hover:text-white group-hover:brightness-0 group-hover:invert transition-all duration-300 ease-in-out"
             />
-            <h3 className="text-lg font-bold text-primary mb-2 group-hover:text-white transition-all duration-300 ease-in-out">
+            <h3 className="text-2xl font-bold text-primary mb-2 group-hover:text-white transition-all duration-300 ease-in-out">
               {option.title}
             </h3>
-            <p className="text-muted-text text-base group-hover:text-white transition-all duration-300 ease-in-out">
+            <p className="text-muted-text text-xl group-hover:text-white transition-all duration-300 ease-in-out">
               {option.description}
             </p>
           </div>
         ))}
       </div>
       
-      <p className="text-cta mt-10">
+      <p className="text-cta text-2xl mt-20">
         Let's take the first step toward a healthier you!
       </p>
     </div>
