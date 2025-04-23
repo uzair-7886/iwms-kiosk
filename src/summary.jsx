@@ -7,6 +7,7 @@ import { FaWeight, FaThermometerHalf, FaHeartbeat, FaTint, FaLungs } from "react
 import { IoMdPulse } from "react-icons/io";
 import { ChevronDown } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { useRef } from 'react';
 
 const steps = [
   { name: 'Height', path: '/1Height' },
@@ -25,8 +26,69 @@ const SummaryPage = () => {
   const [time, setTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
 
+  const hasSaved=useRef(false)
+
   // Get vitals from Redux store
   const { weight, bloodPressure, temperature, glucose, spo2, heartRate } = useSelector((state) => state.vitals);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (hasSaved.current) return;
+    if (!token) return; // not logged in, skip
+  
+    const baseUrl = 'http://localhost:8080';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+  
+    const saveMeasurements = async () => {
+      try {
+        if (weight) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/weight?weight=${weight}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (temperature) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/temperature?temperature=${temperature}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (bloodPressure?.systolic && bloodPressure?.diastolic) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/blood-pressure?systolic=${bloodPressure.systolic}&diastolic=${bloodPressure.diastolic}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (glucose) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/glucose?glucoseLevel=${glucose}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (spo2) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/blood-oxygen?bloodOxygen=${spo2}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (heartRate) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/heart-rate?heartRate=${heartRate}`,
+            { method: 'POST', headers }
+          );
+        }
+      } catch (error) {
+        console.error('Error saving measurements:', error);
+      }
+    };
+    hasSaved.current=true
+    saveMeasurements();
+  }, [weight, temperature, bloodPressure, glucose, spo2, heartRate]);
+  
 
   const languages = {
     en: { flag: '/usa.png', label: 'English' },
@@ -215,7 +277,10 @@ const SummaryPage = () => {
       </div>
 
       <div className="flex flex-col gap-4 max-w-4xl w-full mx-auto mt-12">
-        <button className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors">
+        <button
+        onClick={() => navigate('/recommendations')}
+        
+        className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors">
           {t('summary.next')}
         </button>
       </div>

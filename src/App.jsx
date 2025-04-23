@@ -18,6 +18,7 @@ import BP from './BloodPressure';
 import Temperature from './4Temp';
 import Glucose from './Glucose';
 import Summary from './summary';
+import RecommendationsPage from './recommendations';
 import './i18n'; // Import i18n configuration
 
 const PrivateRoute = ({ children }) => {
@@ -39,6 +40,7 @@ const App = () => {
           <Route path='/4Temp' element={<Temperature />} />
           <Route path='/5Glucose' element={<Glucose />} />
           <Route path='/summary' element={<Summary />} />
+          <Route path='/recommendations' element={<RecommendationsPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />

@@ -2,15 +2,20 @@
 import React, { useState } from 'react';
 import LoginForm from './Loginform';
 import FaceLogin from './FaceLogin';
+import { useNavigate } from 'react-router-dom';
+
 
 const LoginScreen = () => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isFaceModalOpen, setIsFaceModalOpen] = useState(false);
   const [token, setToken] = useState(null);
+  const navigate = useNavigate(); 
 
   const handleLogout = () => {
-    setToken(null);
-    // Optionally, remove the token from localStorage if you persist it.
+    // setToken(null);
+    
+
+
   };
 
   return (
@@ -87,7 +92,9 @@ const LoginScreen = () => {
             <LoginForm 
               onLoginSuccess={(token) => {
                 setToken(token);
+                localStorage.setItem('token', token);
                 setIsEmailModalOpen(false);
+                navigate('/homepage');
               }} 
             />
           </div>
@@ -108,6 +115,8 @@ const LoginScreen = () => {
               onLoginSuccess={(token) => {
                 setToken(token);
                 setIsFaceModalOpen(false);
+                localStorage.setItem('token', token);
+                navigate('/homepage');
               }} 
             />
           </div>
