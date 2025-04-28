@@ -1,18 +1,15 @@
-import React, { useState, useEffect,useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
-import { FaAppleAlt } from 'react-icons/fa';
-import { evaluateRecommendations, saveRecommendations } from './services/recommendations';
+import { getAbnormalVitals,generateFollowUpQuestions } from './services/recommendations';
 
-const RecommendationsPage = () => {
+const QuestionnairePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const navState = location.state || {};
-  const vitals = navState.vitals || useSelector(state => state.vitals);
-  const answers = navState.answers || {};
-  const hasSaved=useRef(false)
+  const vitals = useSelector(state => state.vitals);
 
   // Clock
   const [time, setTime] = useState(new Date());
@@ -20,14 +17,6 @@ const RecommendationsPage = () => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
-
-  
-      const handleDone = () => {
-         if (localStorage.getItem('token')) {
-           localStorage.removeItem('token');           
-         }
-         navigate('/login');
-       };
 
   // Weather
   const [weather, setWeather] = useState(null);
@@ -53,37 +42,25 @@ const RecommendationsPage = () => {
     ur: { flag: '/pk.png', label: 'اردو' }
   };
 
-  // Generate recommendations
-  const recData = evaluateRecommendations(vitals, answers);
-  const recommendations = recData.map((rec, idx) => ({
-    icon: <FaAppleAlt size={32} className="text-primary" key={idx} />,   
-    title: rec.vital,
-    description: rec.message
-  }));
+  // Determine abnormal vitals and questions
+  const abnormalities = getAbnormalVitals(vitals);
+  const questions = generateFollowUpQuestions(abnormalities);
 
-  useEffect(() => {
-    if (hasSaved.current || !localStorage.getItem('token')) return;
-    hasSaved.current = true;
-  
-    const baseUrl = 'http://localhost:8080';
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    };
-  
-    const saveRecommendations = async () => {
-      console.log(recData);
-      await fetch(`${baseUrl}/api/recommendations/add`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(recData),
-      });
-    };
-  
-    saveRecommendations();
-  }, [recData]);
-  
+  // Collect user answers
+  const [answers, setAnswers] = useState({});
+  const handleChange = (vital, key) => e => {
+    const val = e.target.value;
+    setAnswers(prev => ({
+      ...prev,
+      [vital]: { ...(prev[vital] || {}), [key]: val }
+    }));
+  };
 
+  // Submit questionnaire and navigate
+  const handleSubmit = e => {
+    e.preventDefault();
+    navigate('/recommendations', { state: { vitals, answers } });
+  };
 
   return (
     <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
@@ -145,33 +122,38 @@ const RecommendationsPage = () => {
 
       {/* Header */}
       <div className="text-center text-white mb-8">
-        <h1 className="text-5xl font-bold text-primary">Your Recommendations</h1>
-        <p className="mt-2 text-lg">Based on your vitals and answers, here are your personalized recommendations.</p>
+        <h1 className="text-5xl font-bold text-primary">Wellness Questionnaire</h1>
+        <p className="mt-2 text-lg">Please answer a few questions based on your vital readings.</p>
       </div>
 
-      {/* Recommendations Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
-        {recommendations.map((rec, idx) => (
-          <div
-            key={idx}
-            className="shadow-lg flex flex-col items-center bg-extrablack rounded-xl p-6 border"
-          >
-            {rec.icon}
-            <h3 className="text-xl font-semibold text-white mt-4">{rec.title}</h3>
-            <p className="text-center text-gray-300 mt-2">{rec.description}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer Button */}
-      <div className="flex flex-col gap-4 max-w-4xl w-full mx-auto mt-12">
+      {/* Questionnaire Form */}
+      <form onSubmit={handleSubmit} className="w-full max-w-4xl space-y-6 mb-12">
+        {questions.length > 0 ? (
+          questions.map((q, idx) => (
+            <div key={idx} className="bg-extrablack rounded-xl border shadow-lg p-6">
+              <label className="block text-white font-semibold mb-2">{q.text}</label>
+              <input
+                type="text"
+                placeholder="Your answer"
+                value={answers[q.vital]?.[q.key] || ''}
+                onChange={handleChange(q.vital, q.key)}
+                className="w-full p-3 rounded-md text-black"
+                required
+              />
+            </div>
+          ))
+        ) : (
+          <p className="text-white text-center">
+            All your vital measurements are within normal ranges. No additional questions.
+          </p>
+        )}
         <button
-          onClick={handleDone}
+          type="submit"
           className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors"
         >
-          Done
+          Continue
         </button>
-      </div>
+      </form>
 
       {/* Bottom Footer */}
       <footer className="fixed bottom-0 left-0 right-0 bg-secondary/80 backdrop-blur-md p-4 z-20 border-t border-white/10">
@@ -197,4 +179,4 @@ const RecommendationsPage = () => {
   );
 };
 
-export default RecommendationsPage;
+export default QuestionnairePage;

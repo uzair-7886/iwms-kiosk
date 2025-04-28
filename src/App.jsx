@@ -19,6 +19,7 @@ import Temperature from './4Temp';
 import Glucose from './Glucose';
 import Summary from './summary';
 import RecommendationsPage from './recommendations';
+import QuestionnairePage from './QuestionnairePage';
 import './i18n'; // Import i18n configuration
 
 const PrivateRoute = ({ children }) => {
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/welcome" element={<ReviveWelcomeScreen />} />
           <Route path="/language" element={<LanguageSelectScreen />} />
           <Route path="/facial" element={<FacialAuth />} />
+          <Route path="/questionnaire" element={<QuestionnairePage />} />
           <Route 
             path="/dashboard" 
             element={

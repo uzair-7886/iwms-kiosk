@@ -278,7 +278,7 @@ const SummaryPage = () => {
 
       <div className="flex flex-col gap-4 max-w-4xl w-full mx-auto mt-12">
         <button
-        onClick={() => navigate('/recommendations')}
+        onClick={() => navigate('/questionnaire')}
         
         className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors">
           {t('summary.next')}
