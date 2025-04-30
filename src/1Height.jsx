@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setHeight } from './redux/vitalsSlice';
-import { Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { useLocation } from 'react-router-dom';
+// import { motion, AnimatePresence } from 'framer-motion';
+
 
 const steps = [
   { name: 'Height', path: '/1Height' },
@@ -29,6 +30,8 @@ const VitalsMeasurement = () => {
   const [time, setTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
   const location = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+
 
   const currentStep = steps.findIndex(step => step.path === location.pathname);
 
@@ -65,16 +68,41 @@ const VitalsMeasurement = () => {
     i18n.changeLanguage(lang);
     setDropdownOpen(false);
   };
+  const handleUnitSwitch = (unit) => {
+    setHeightUnit(unit);
+  };
 
-  const convertHeight = (value) => {
-    if (!value) return "";
-    if (heightUnit === 'feet') {
-      const feet = Math.floor(value / 30.48);
-      const inches = Math.round((value / 30.48 - feet) * 12);
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    if (heightUnit === 'cm') {
+      dispatch(setHeight(Number(value)));
+    } else if (heightUnit === 'feet') {
+      const parts = value.split("'");
+      if (parts.length === 2) {
+        const feet = parseInt(parts[0], 10);
+        const inches = parseInt(parts[1], 10);
+        if (!isNaN(feet) && !isNaN(inches)) {
+          const cm = (feet * 30.48) + (inches * 2.54);
+          dispatch(setHeight(cm));
+        }
+      }
+    }
+  };
+
+  const convertHeight = () => {
+    if (heightUnit === 'cm') {
+      return height ? Math.round(height) : '';
+    } else if (heightUnit === 'feet') {
+      if (!height) return '';
+      const totalInches = height / 2.54;
+      const feet = Math.floor(totalInches / 12);
+      const inches = Math.round(totalInches % 12);
       return `${feet}'${inches}"`;
     }
-    return `${value}`;
+    return '';
   };
+
+
 
   return (
     <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
@@ -157,6 +185,7 @@ const VitalsMeasurement = () => {
           </React.Fragment>
         ))}
       </div>
+
       <div className="relative z-10 max-w-4xl mx-auto py-4">
         <div className="text-center mb-20">
           <h1 className="text-5xl font-bold text-white mb-4">
@@ -181,29 +210,121 @@ const VitalsMeasurement = () => {
               </span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
                 <button
-                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'cm' ? 'bg-primary text-white' : 'text-gray-300'
-                    }`}
-                  onClick={() => setHeightUnit('cm')}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'cm' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                  onClick={() => handleUnitSwitch('cm')}
                 >
                   cm
                 </button>
                 <button
-                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'feet' ? 'bg-primary text-white' : 'text-gray-300'
-                    }`}
-                  onClick={() => setHeightUnit('feet')}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${heightUnit === 'feet' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                  onClick={() => handleUnitSwitch('feet')}
                 >
                   feet
                 </button>
               </div>
             </div>
-            <input
-              type="text"
-              value={convertHeight(height)}
-              onChange={(e) =>
-                dispatch(setHeight(e.target.value))
-              }
-              className="text-5xl bg-transparent w-full text-white outline-none"
-            />
+
+            <div className="flex flex-col items-center gap-4">
+              {/* Text field that opens modal */}
+              <div
+                className="text-5xl text-white cursor-pointer"
+                onClick={() => setIsModalOpen(true)}
+              >
+                {heightUnit === 'cm'
+                  ? `${Math.round(height)} cm`
+                  : (() => {
+                    const totalInches = height / 2.54;
+                    const feet = Math.floor(totalInches / 12);
+                    const inches = Math.round(totalInches % 12);
+                    return `${feet}'${inches}"`;
+                  })()}
+              </div>
+            </div>
+
+            {isModalOpen && (
+              <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+                <div className="bg-extrablack rounded-lg p-8 w-[500px] md:w-[600px]">
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-white text-2xl font-bold">Select Height</span>
+                    <button
+                      className="text-white text-xl"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Unit Switch inside Modal */}
+                  <div className="flex bg-gray-700 rounded-lg p-1 w-48 mx-auto mb-8">
+                    <button
+                      className={`flex-1 py-2 rounded-md text-lg font-bold ${heightUnit === 'cm' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                      onClick={() => handleUnitSwitch('cm')}
+                    >
+                      cm
+                    </button>
+                    <button
+                      className={`flex-1 py-2 rounded-md text-lg font-bold ${heightUnit === 'feet' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                      onClick={() => handleUnitSwitch('feet')}
+                    >
+                      feet
+                    </button>
+                  </div>
+
+                  {/* Slider */}
+                  <div className="my-6">
+                    <input
+                      type="range"
+                      min={heightUnit === 'cm' ? 50 : 3}
+                      max={heightUnit === 'cm' ? 250 : 7}
+                      step={heightUnit === 'cm' ? 1 : 0.1}
+                      value={heightUnit === 'cm' ? Math.round(height) : (height / 30.48).toFixed(1)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (heightUnit === 'cm') {
+                          dispatch(setHeight(value));
+                        } else {
+                          dispatch(setHeight(value * 30.48));
+                        }
+                      }}
+                      className="w-full h-3 bg-gray-600 rounded-lg appearance-none focus:outline-none
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:h-6
+            [&::-webkit-slider-thumb]:w-6
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-primary
+            [&::-webkit-slider-thumb]:cursor-pointer
+            transition-all duration-200"
+                    />
+                    <div className="flex justify-between text-gray-400 text-lg mt-2">
+                      <span>{heightUnit === 'cm' ? '50 cm' : "3'0\""}</span>
+                      <span>{heightUnit === 'cm' ? '250 cm' : "7'0\""}</span>
+                    </div>
+                  </div>
+
+                  {/* Current Selected Height */}
+                  <div className="text-5xl text-white font-bold text-center my-6">
+                    {heightUnit === 'cm'
+                      ? `${Math.round(height)} cm`
+                      : (() => {
+                        const totalInches = height / 2.54;
+                        const feet = Math.floor(totalInches / 12);
+                        const inches = Math.round(totalInches % 12);
+                        return `${feet}'${inches}"`;
+                      })()}
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="w-full py-3 bg-primary text-white text-xl rounded-lg hover:bg-primary/80 transition"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+
+
             <span className="text-2xl text-gray-400">
               {heightUnit.toUpperCase()}
             </span>
