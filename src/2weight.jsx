@@ -4,6 +4,7 @@ import { setWeight } from './redux/vitalsSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+// import { motion, AnimatePresence } from 'framer-motion';
 import i18n from './i18n';
 
 const steps = [
@@ -30,6 +31,7 @@ const VitalsMeasurementWeight = () => {
   const location = useLocation();
 
   const currentStep = steps.findIndex((step) => step.path === location.pathname);
+  const [showWeightModal, setShowWeightModal] = useState(false);
 
   const languages = {
     en: { flag: '/usa.png', label: 'English' },
@@ -76,6 +78,11 @@ const VitalsMeasurementWeight = () => {
   const toggleUnit = () => {
     setWeightUnit(weightUnit === 'kg' ? 'lbs' : 'kg');
   };
+  const handleUnitSwitch = (unit) => {
+    setWeightUnit(unit);
+  };
+  
+
 
   return (
     <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
@@ -138,18 +145,16 @@ const VitalsMeasurementWeight = () => {
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${
-                  index === currentStep
-                    ? 'border-primary text-primary'
-                    : 'border-gray-400 text-gray-400'
-                }`}
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${index === currentStep
+                  ? 'border-primary text-primary'
+                  : 'border-gray-400 text-gray-400'
+                  }`}
               >
                 {index + 1}
               </div>
               <button
-                className={`text-md font-bold ${
-                  index === currentStep ? 'text-primary' : 'text-gray-400'
-                }`}
+                className={`text-md font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
+                  }`}
                 onClick={() => navigate(step.path)}
               >
                 {step.name}
@@ -173,7 +178,7 @@ const VitalsMeasurementWeight = () => {
         </div>
 
         <div className="flex flex-col justify-between items-center gap-8 mb-12">
-        <div className="flex-1 flex justify-center">
+          <div className="flex-1 flex justify-center">
             <img
               src="/weight-scale.gif"  // Change this to the correct GIF path
               alt="Weight Measurement in progress"
@@ -187,32 +192,30 @@ const VitalsMeasurementWeight = () => {
               </span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
                 <button
-                  className={`flex-1 py-1 rounded-md text-lg font-bold ${
-                    weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setWeightUnit('kg')}
                 >
                   kg
                 </button>
                 <button
-                  className={`flex-1 py-1 rounded-md text-lg font-bold ${
-                    weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
-                  }`}
+                  className={`flex-1 py-1 rounded-md text-lg font-bold ${weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'
+                    }`}
                   onClick={() => setWeightUnit('lbs')}
                 >
                   lbs
                 </button>
               </div>
             </div>
-            <input
-              type="text"
-              value={convertWeight(weight)}
-              onChange={(e) => dispatch(setWeight(e.target.value))}
-              className="text-5xl bg-transparent w-full text-white outline-none"
-            />
-            <span className="text-2xl text-gray-400">
+            <button
+              onClick={() => setShowWeightModal(true)}
+              className="text-5xl bg-transparent w-full text-white outline-none text-left"
+            >
+              {convertWeight(weight)} <span className="text-2xl text-gray-400">{weightUnit.toUpperCase()}</span>
+            </button>
+            {/* <span className="text-2xl text-gray-400">
               {weightUnit.toUpperCase()}
-            </span>
+            </span> */}
           </div>
 
           <div className="bg-extrablack rounded-xl p-6  w-full border border-white/35 flex-1">
@@ -257,7 +260,7 @@ const VitalsMeasurementWeight = () => {
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-4/6 text-center relative">
             <button
-              className="absolute top-2 right-2 text-gray-500"
+              className="absolute top-6 right-6 text-black text-2xl"
               onClick={() => setShowBmiChart(false)}
             >
               ✕
@@ -267,6 +270,83 @@ const VitalsMeasurementWeight = () => {
           </div>
         </div>
       )}
+
+      {showWeightModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-extrablack rounded-lg p-8 w-[500px] md:w-[600px]">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-white text-2xl font-bold">Adjust Weight</span>
+              <button
+                className="text-white text-xl"
+                onClick={() => setShowWeightModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Unit Switch inside Modal */}
+            <div className="flex bg-gray-700 rounded-lg p-1 w-48 mx-auto mb-8">
+              <button
+                className={`flex-1 py-2 rounded-md text-lg font-bold ${weightUnit === 'kg' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                onClick={() => handleUnitSwitch('kg')}
+              >
+                kg
+              </button>
+              <button
+                className={`flex-1 py-2 rounded-md text-lg font-bold ${weightUnit === 'lbs' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                onClick={() => handleUnitSwitch('lbs')}
+              >
+                lbs
+              </button>
+            </div>
+
+            {/* Slider */}
+            <div className="my-6">
+              <input
+                type="range"
+                min={weightUnit === 'kg' ? 30 : 66} // 30kg ≈ 66lbs
+                max={weightUnit === 'kg' ? 200 : 440} // 200kg ≈ 440lbs
+                value={weightUnit === 'kg' ? weight : (weight * 2.20462).toFixed(1)}
+                onChange={(e) => {
+                  let inputValue = parseFloat(e.target.value);
+                  if (weightUnit === 'lbs') {
+                    inputValue = (inputValue / 2.20462).toFixed(1); // Convert lbs back to kg before storing
+                  }
+                  dispatch(setWeight(parseFloat(inputValue)));
+                }}
+                className="w-full h-3 bg-gray-600 rounded-lg appearance-none focus:outline-none
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:h-6
+            [&::-webkit-slider-thumb]:w-6
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-primary
+            [&::-webkit-slider-thumb]:cursor-pointer
+            transition-all duration-200"
+              />
+              <div className="flex justify-between text-gray-400 text-lg mt-2">
+                <span>{weightUnit === 'kg' ? '30 kg' : '66 lbs'}</span>
+                <span>{weightUnit === 'kg' ? '200 kg' : '440 lbs'}</span>
+              </div>
+            </div>
+
+            {/* Current Selected Weight */}
+            <div className="text-5xl text-white font-bold text-center my-6">
+              {convertWeight(weight)} {weightUnit}
+            </div>
+
+            {/* Confirm Button */}
+            <button
+              onClick={() => setShowWeightModal(false)}
+              className="w-full py-3 bg-primary text-white text-xl rounded-lg hover:bg-primary/80 transition"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      )}
+
+
 
       <footer className="fixed bottom-0 left-0 right-0 w-full bg-secondary/80 backdrop-blur-md p-4 px-4 z-20 border-t border-white/10">
         <div className="flex justify-between items-center px-8">

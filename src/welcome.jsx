@@ -13,47 +13,57 @@ const ReviveWelcomeScreen = () => {
         setText(welcomeText.slice(0, i));
         i++;
       } else {
-        clearInterval(typingInterval);
+        // After completing the text, reset i after a small delay
+        setTimeout(() => {
+          i = 0;
+          setText('');
+        }, 1000); // 1 second pause before restarting
       }
     }, 100);
 
-    const transitionTimer = setTimeout(() => {
-      setShowLanguageSelect(true);
-    }, 4000);
-
-    return () => {
-      clearInterval(typingInterval);
-      clearTimeout(transitionTimer);
-    };
+    return () => clearInterval(typingInterval);
   }, []);
+
+  const handleClick = () => {
+    setShowLanguageSelect(true);
+  };
 
   if (showLanguageSelect) {
     return <LanguageSelectScreen />;
   }
 
   return (
-    <div className="relative min-h-screen bg-secondary flex items-center justify-center overflow-hidden">
+    <div
+      className="relative min-h-screen bg-secondary flex items-center justify-center overflow-hidden cursor-pointer"
+      onClick={handleClick}
+    >
       {/* SVG Background with Multiply Blend Mode */}
       <div 
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
         style={{
-            backgroundImage: `url('./public/bgPattern.svg')`,
-            backgroundRepeat: 'repeat'
+          backgroundImage: `url('./public/bgPattern.svg')`,
+          backgroundRepeat: 'repeat'
         }}
       />
       
       <div className="relative z-10 text-center">
-        <div className="text-3xl font-bold text-text mb-4 h-10">
+        <div className="text-4xl font-bold text-text mb-4 h-10">
           {text}
         </div>
         
         <img 
           src="/reviva-logo-full.svg" 
           alt="Reviva Logo" 
-          className="mx-auto mb-8 mt-10 h-max w-max"
+          className="mx-auto mt-24 mb-24 h-96 w-auto"
         />
-        <p className="text-2xl text-text">
+        
+        <p className="text-3xl text-white">
           Your partner in tracking and improving your health.
+        </p>
+
+        {/* Click to Get Started */}
+        <p className="mt-20 text-4xl text-primary animate-pulse">
+          Click anywhere to get started
         </p>
       </div>
     </div>
