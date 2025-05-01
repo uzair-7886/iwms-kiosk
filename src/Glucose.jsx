@@ -28,6 +28,10 @@ const VitalsMeasurementGlucose = () => {
   const [tempCorrection, settempCorrection] = useState(null);
   const location = useLocation();
 
+  const [glucoseModalOpen, setGlucoseModalOpen] = useState(false);
+  const [tempGlucose, setTempGlucose] = useState(glucose || 100); // default value
+
+
   const currentStep = steps.findIndex((step) => step.path === location.pathname);
 
   const moveNext = () => {
@@ -122,7 +126,7 @@ const VitalsMeasurementGlucose = () => {
         {steps.map((step, index) => (
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
-              <div 
+              <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'}`}
               >
                 {index + 1}
@@ -152,7 +156,7 @@ const VitalsMeasurementGlucose = () => {
         </div>
 
         <div className="flex flex-col justify-between items-center gap-8 mb-12">
-        <div className="flex-1 flex justify-center">
+          <div className="flex-1 flex justify-center">
             <img
               src="/glucose.gif"  // Change this to the correct GIF path
               alt="Glucose Measurement in progress"
@@ -164,12 +168,14 @@ const VitalsMeasurementGlucose = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold text-2xl">{t('glucose.label')}</span>
             </div>
-            <input
-              type="text"
-              value={glucose}
-              onChange={(e) => dispatch(setGlucose(e.target.value))}
-              className="text-5xl bg-transparent w-full text-white outline-none"
-            />
+            <button
+              onClick={() => setGlucoseModalOpen(true)}
+              className="text-5xl bg-transparent w-full text-white outline-none text-left"
+            >
+              {glucose || '---'}
+            </button>
+
+
             <span className="text-2xl text-gray-400">mg/dL</span>
           </div>
 
@@ -182,6 +188,72 @@ const VitalsMeasurementGlucose = () => {
             </div>
           </div>
         </div>
+        {glucoseModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-extrablack rounded-lg p-8 w-[500px] md:w-[600px]">
+
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-white text-2xl font-bold">
+                  {t('glucose.select_value')}
+                </span>
+                <button
+                  className="text-white text-xl"
+                  onClick={() => setGlucoseModalOpen(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Glucose Slider */}
+              <div className="my-6">
+                <input
+                  type="range"
+                  min="70"
+                  max="200"
+                  value={tempGlucose}
+                  onChange={(e) => setTempGlucose(Number(e.target.value))}
+                  className="w-full h-3 bg-gray-600 rounded-lg appearance-none focus:outline-none
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:h-6
+          [&::-webkit-slider-thumb]:w-6
+          [&::-webkit-slider-thumb]:rounded-full
+          [&::-webkit-slider-thumb]:bg-primary
+          [&::-webkit-slider-thumb]:cursor-pointer
+          transition-all duration-200"
+                />
+                <div className="flex justify-between text-gray-400 text-lg mt-2">
+                  <span>70 mg/dL</span>
+                  <span>200 mg/dL</span>
+                </div>
+              </div>
+
+              {/* Selected Value */}
+              <div className="text-5xl text-white font-bold text-center my-6">
+                {tempGlucose} mg/dL
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-4">
+                <button
+                  className="flex-1 py-3 bg-primary text-white text-xl rounded-lg hover:bg-primary/80 transition"
+                  onClick={() => {
+                    dispatch(setGlucose(tempGlucose));
+                    setGlucoseModalOpen(false);
+                  }}
+                >
+                  {t('vitals_measurement.confirm')}
+                </button>
+                <button
+                  className="flex-1 py-3 border border-white/20 text-white text-xl rounded-lg hover:bg-white/10 transition"
+                  onClick={() => setGlucoseModalOpen(false)}
+                >
+                  {t('vitals_measurement.cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <p className="text-center text-gray-300 mb-8 text-xl max-w-4xl">
           {t('glucose.instruction')}

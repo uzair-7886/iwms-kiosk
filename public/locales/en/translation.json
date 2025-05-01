@@ -35,7 +35,9 @@
     "contact_us": "Feel free to contact us!",
     "footer": "Track your health, transform your life!",
     "get_app": "Get the App",
-    "download_app": "Download Reviva App"
+    "download_app": "Download Reviva App",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   "weight_measurement": {
     "title": "Weight Measurement",
@@ -75,12 +77,14 @@
     "heart_rate": "Heart Rate",
     "SpO2": "SpO₂",
     "view_chart": "View Chart",
-    "instruction": "Please place the pulse oximeter on your finger to measure oxygen levels and heart rate."
+    "instruction": "Please place the pulse oximeter on your finger to measure oxygen levels and heart rate.",
+    "adjust_spo2": "Select SpO₂ Level"
   },
   "glucose": {
     "title": "Glucose Measurement",
     "label": "Glucose",
     "card2": "Temp Correction",
-    "instruction": "Please insert the test strip into the glucometer and prick your finger to measure glucose levels."
+    "instruction": "Please insert the test strip into the glucometer and prick your finger to measure glucose levels.",
+    "select_value": "Select Glucose Level"
   }
 }

@@ -94,6 +94,21 @@ const VitalsMeasurementBP = () => {
     }
   };
 
+  // State and Handlers (no change)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [sliderValue, setSliderValue] = useState(temperature ? parseFloat(temperature) : 36.5);
+
+  const handleTemperatureClick = () => {
+    setSliderValue(parseFloat(temperature) || 36.5);
+    setModalOpen(true);
+  };
+
+  const applyTemperature = () => {
+    dispatch(setTemperature(sliderValue.toString()));
+    setModalOpen(false);
+  };
+
+
   return (
     <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
       <div
@@ -153,10 +168,9 @@ const VitalsMeasurementBP = () => {
         {steps.map((step, index) => (
           <React.Fragment key={step.path}>
             <div className="flex flex-col items-center">
-              <div 
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${
-                  index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'
-                }`}
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 text-md font-bold mb-2 ${index === currentStep ? 'border-primary text-primary' : 'border-gray-400 text-gray-400'
+                  }`}
               >
                 {index + 1}
               </div>
@@ -181,7 +195,7 @@ const VitalsMeasurementBP = () => {
           <p className="text-gray-300 text-xl">{t('vitals_measurement.instructions')}</p>
         </div>
         <div className="flex flex-col justify-between items-center gap-8 mb-12">
-        <div className="flex-1 flex justify-center">
+          <div className="flex-1 flex justify-center">
             <img
               src="/temp.gif"
               alt="Temperature Measurement in progress"
@@ -189,8 +203,10 @@ const VitalsMeasurementBP = () => {
             />
           </div>
           <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-primary font-bold text-2xl">{t('temperature.Temp')}</span>
+            <div className="flex justify-between  mb-4">
+              <span className="text-primary font-bold text-2xl">
+                {t('temperature.Temp')}
+              </span>
               <div className="flex bg-gray-700 rounded-lg p-1 w-24">
                 <button
                   className={`flex-1 py-1 rounded-md text-lg font-bold ${tempUnit === 'C' ? 'bg-primary text-white' : 'text-gray-300'}`}
@@ -206,14 +222,99 @@ const VitalsMeasurementBP = () => {
                 </button>
               </div>
             </div>
-            <input
-              type="text"
-              value={convertTemperature(temperature)}
-              onChange={(e) => dispatch(setTemperature(e.target.value))}
-              className="text-5xl bg-transparent w-full text-white outline-none"
-            />
-            <span className="text-2xl text-gray-400">{tempUnit}</span>
+
+            {/* Temperature display (clickable) */}
+            <div
+              onClick={handleTemperatureClick}
+              className="text-5xl bg-transparent w-full text-white outline-none cursor-pointer "
+            >
+              {convertTemperature(temperature)}°
+              <span className="text-2xl text-gray-400 ml-1">{tempUnit}</span>
+            </div>
           </div>
+
+          {modalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div className="bg-extrablack rounded-lg p-8 w-[500px] md:w-[600px]">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-white text-2xl font-bold">Adjust Temperature</span>
+                  <button
+                    className="text-white text-xl"
+                    onClick={() => setModalOpen(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Unit Switch */}
+                <div className="flex bg-gray-700 rounded-lg p-1 w-48 mx-auto mb-8">
+                  <button
+                    className={`flex-1 py-2 rounded-md text-lg font-bold ${tempUnit === 'C' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                    onClick={() => setTempUnit('C')}
+                  >
+                    °C
+                  </button>
+                  <button
+                    className={`flex-1 py-2 rounded-md text-lg font-bold ${tempUnit === 'F' ? 'bg-primary text-white' : 'text-gray-300'}`}
+                    onClick={() => setTempUnit('F')}
+                  >
+                    °F
+                  </button>
+                </div>
+
+                {/* Slider */}
+                <div className="my-6">
+                  <input
+                    type="range"
+                    min={tempUnit === 'C' ? 34 : 93}
+                    max={tempUnit === 'C' ? 42 : 108}
+                    step="0.1"
+                    value={convertTemperature(sliderValue)}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setSliderValue(tempUnit === 'F' ? ((val - 32) * 5 / 9) : val);
+                    }}
+                    className="w-full h-3 bg-gray-600 rounded-lg appearance-none focus:outline-none
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:h-6
+          [&::-webkit-slider-thumb]:w-6
+          [&::-webkit-slider-thumb]:rounded-full
+          [&::-webkit-slider-thumb]:bg-primary
+          [&::-webkit-slider-thumb]:cursor-pointer
+          transition-all duration-200"
+                  />
+                  <div className="flex justify-between text-gray-400 text-lg mt-2">
+                    <span>{tempUnit === 'C' ? '34 °C' : '93 °F'}</span>
+                    <span>{tempUnit === 'C' ? '42 °C' : '108 °F'}</span>
+                  </div>
+                </div>
+
+                {/* Current Selected Temperature */}
+                <div className="text-5xl text-white font-bold text-center my-6">
+                  {convertTemperature(sliderValue)}° {tempUnit}
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="w-full py-3 bg-gray-600 text-white text-xl rounded-lg hover:bg-gray-700 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={applyTemperature}
+                    className="w-full py-3 bg-primary text-white text-xl rounded-lg hover:bg-primary/80 transition"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
 
           <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
