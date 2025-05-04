@@ -41,17 +41,33 @@ const VitalsMeasurementBP = () => {
   };
 
   useEffect(() => {
-    const tempInCelsius = tempUnit === 'F'
-      ? (parseFloat(temperature) - 32) * 5 / 9
-      : parseFloat(temperature);
-    if (tempInCelsius < 37) {
+    // Convert the stored temperature value to a number
+    const temp = parseFloat(temperature);
+    if (isNaN(temp)) {
       setFeverStatus('No Fever');
-    } else if (tempInCelsius >= 37 && tempInCelsius < 38) {
+      return;
+    }
+
+    // Important: temperature is always stored in Celsius in Redux
+    let tempForFeverCheck;
+    
+    // If displaying in Fahrenheit, we need to check the original Celsius value
+    // If displaying in Celsius, use the value directly
+    tempForFeverCheck = temp;
+
+    // Debug
+    console.log(`Current temp: ${temp}, Unit: ${tempUnit}, For fever check: ${tempForFeverCheck}`);
+
+    // Use the Celsius value to determine fever status
+    if (tempForFeverCheck < 37) {
+      setFeverStatus('No Fever');
+    } else if (tempForFeverCheck >= 37 && tempForFeverCheck < 38) {
       setFeverStatus('Low Fever');
     } else {
       setFeverStatus('High Fever');
     }
   }, [temperature, tempUnit]);
+
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -73,9 +89,12 @@ const VitalsMeasurementBP = () => {
     setDropdownOpen(false);
   };
 
-  const convertTemperature = (value) => {
-    return tempUnit === 'F' ? ((value * 9 / 5) + 32).toFixed(1) : value;
+  const convertTemperature = (value, toUnit = tempUnit) => {
+    const num = parseFloat(value);
+    if (isNaN(num)) return '--';
+    return toUnit === 'F' ? ((num * 9 / 5) + 32).toFixed(1) : num.toFixed(1);
   };
+  
 
   // Function to call the Flask API endpoint to read temperature
   const startRecording = async () => {
@@ -83,8 +102,18 @@ const VitalsMeasurementBP = () => {
       const response = await fetch('http://127.0.0.1:5000/api/temperature', { method: 'POST' });
       const data = await response.json();
       if (data.temperature) {
-        // Dispatch the temperature to the Redux store
-        dispatch(setTemperature(data.temperature.toString()));
+        // Always store temperature in Celsius in Redux, regardless of display unit
+        let tempValue = parseFloat(data.temperature);
+        
+        // If the API returned Fahrenheit, convert to Celsius for storage
+        if (data.unit.includes("F")) {
+          tempValue = (tempValue - 32) * 5 / 9;
+        }
+        
+        // Dispatch the temperature (in Celsius) to the Redux store
+        dispatch(setTemperature(tempValue.toString()));
+        
+        // Set the display unit
         setTempUnit(data.unit.includes("F") ? "F" : "C");
       } else {
         console.error("Temperature data not available", data);
@@ -104,7 +133,16 @@ const VitalsMeasurementBP = () => {
   };
 
   const applyTemperature = () => {
-    dispatch(setTemperature(sliderValue.toString()));
+    // Always store the actual temperature value (in Celsius) in Redux
+    let valueToStore = sliderValue;
+    
+    // If user is working in Fahrenheit, convert to Celsius for storage
+    if (tempUnit === 'F') {
+      // Convert from display value (F) back to storage value (C)
+      valueToStore = ((parseFloat(convertTemperature(sliderValue, 'F')) - 32) * 5 / 9);
+    }
+    
+    dispatch(setTemperature(valueToStore.toString()));
     setModalOpen(false);
   };
 
@@ -228,7 +266,7 @@ const VitalsMeasurementBP = () => {
               onClick={handleTemperatureClick}
               className="text-5xl bg-transparent w-full text-white outline-none cursor-pointer "
             >
-              {convertTemperature(temperature)}°
+              {tempUnit === 'F' ? convertTemperature(temperature, 'F') : temperature}°
               <span className="text-2xl text-gray-400 ml-1">{tempUnit}</span>
             </div>
           </div>
@@ -270,7 +308,7 @@ const VitalsMeasurementBP = () => {
                     min={tempUnit === 'C' ? 34 : 93}
                     max={tempUnit === 'C' ? 42 : 108}
                     step="0.1"
-                    value={convertTemperature(sliderValue)}
+                    value={convertTemperature(sliderValue, tempUnit)}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
                       setSliderValue(tempUnit === 'F' ? ((val - 32) * 5 / 9) : val);
@@ -292,7 +330,7 @@ const VitalsMeasurementBP = () => {
 
                 {/* Current Selected Temperature */}
                 <div className="text-5xl text-white font-bold text-center my-6">
-                  {convertTemperature(sliderValue)}° {tempUnit}
+                  {convertTemperature(sliderValue, tempUnit)}° {tempUnit}
                 </div>
 
                 {/* Buttons */}

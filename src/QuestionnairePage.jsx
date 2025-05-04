@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Phone, QrCode, ChevronDown } from 'lucide-react';
+import { Phone, QrCode, ChevronDown, AlertCircle, CheckCircle, HelpCircle, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
-import { getAbnormalVitals,generateFollowUpQuestions } from './services/recommendations';
+import { getAbnormalVitals, generateFollowUpQuestions } from './services/recommendations';
 
 const QuestionnairePage = () => {
   const { t } = useTranslation();
@@ -48,6 +48,19 @@ const QuestionnairePage = () => {
 
   // Collect user answers
   const [answers, setAnswers] = useState({});
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [questionProgress, setQuestionProgress] = useState(0);
+  
+  // Track completion status
+  const [completed, setCompleted] = useState([]);
+
+  useEffect(() => {
+    // Calculate progress percentage
+    if (questions.length > 0) {
+      setQuestionProgress((completed.length / questions.length) * 100);
+    }
+  }, [completed, questions.length]);
+
   const handleChange = (vital, key) => e => {
     const val = e.target.value;
     setAnswers(prev => ({
@@ -56,14 +69,46 @@ const QuestionnairePage = () => {
     }));
   };
 
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      const questionId = questions[currentQuestion].vital + '_' + questions[currentQuestion].key;
+      if (!completed.includes(questionId)) {
+        setCompleted([...completed, questionId]);
+      }
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      // On last question
+      const questionId = questions[currentQuestion].vital + '_' + questions[currentQuestion].key;
+      if (!completed.includes(questionId)) {
+        setCompleted([...completed, questionId]);
+      }
+      
+      // Submit the form
+      handleSubmit();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  // Check if current question has an answer
+  const isCurrentQuestionAnswered = () => {
+    if (questions.length === 0) return true;
+    
+    const q = questions[currentQuestion];
+    return answers[q.vital]?.[q.key] && answers[q.vital][q.key].trim() !== '';
+  };
+
   // Submit questionnaire and navigate
-  const handleSubmit = e => {
-    e.preventDefault();
+  const handleSubmit = () => {
     navigate('/recommendations', { state: { vitals, answers } });
   };
 
   return (
-    <div className="relative min-h-screen bg-secondary flex flex-col items-center px-6">
+    <div className="relative min-h-screen bg-secondary flex flex-col items-center">
       {/* Background Overlay */}
       <div
         className="absolute inset-0 opacity-70 mix-blend-multiply pointer-events-none"
@@ -103,7 +148,7 @@ const QuestionnairePage = () => {
               <ChevronDown size={16} className="text-white" />
             </button>
             {dropdownOpen && (
-              <ul className="absolute right-0 mt-2 bg-white rounded-md shadow-lg overflow-hidden">
+              <ul className="absolute right-0 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50">
                 {Object.entries(languages).map(([lang, { flag, label }]) => (
                   <li
                     key={lang}
@@ -120,40 +165,127 @@ const QuestionnairePage = () => {
         </div>
       </nav>
 
-      {/* Header */}
-      <div className="text-center text-white mb-8">
-        <h1 className="text-5xl font-bold text-primary">Wellness Questionnaire</h1>
-        <p className="mt-2 text-lg">Please answer a few questions based on your vital readings.</p>
-      </div>
+      {/* Main Content */}
+      <div className="w-full max-w-5xl mx-auto px-6 pb-32 flex-1 flex flex-col">
+        {/* Header */}
+        <div className="text-center text-white mb-8 mt-6">
+          <h1 className="text-5xl font-bold text-primary mb-4">Wellness Assessment</h1>
+          <p className="text-xl opacity-90">Help us understand your health better with a few questions</p>
+        </div>
 
-      {/* Questionnaire Form */}
-      <form onSubmit={handleSubmit} className="w-full max-w-4xl space-y-6 mb-12">
-        {questions.length > 0 ? (
-          questions.map((q, idx) => (
-            <div key={idx} className="bg-extrablack rounded-xl border shadow-lg p-6">
-              <label className="block text-white font-semibold mb-2">{q.text}</label>
-              <input
-                type="text"
-                placeholder="Your answer"
-                value={answers[q.vital]?.[q.key] || ''}
-                onChange={handleChange(q.vital, q.key)}
-                className="w-full p-3 rounded-md text-black"
-                required
-              />
+        {/* Progress Bar */}
+        <div className="w-full mb-8">
+          <div className="flex justify-between text-white mb-2">
+            <span className="text-lg">{questions.length > 0 ? `Question ${currentQuestion + 1} of ${questions.length}` : 'Assessment'}</span>
+            <span className="text-lg">{Math.round(questionProgress)}% Complete</span>
+          </div>
+          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-500 ease-out"
+              style={{ width: `${questionProgress}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Question Cards */}
+        <div className="flex-1 w-full">
+          {questions.length > 0 ? (
+            <div className="relative h-full">
+              {questions.map((question, idx) => (
+                <div 
+                  key={idx}
+                  className={`absolute w-full transition-all duration-500 ease-in-out ${
+                    idx === currentQuestion ? 'opacity-100 translate-x-0' : 
+                    idx < currentQuestion ? 'opacity-0 -translate-x-full' : 
+                    'opacity-0 translate-x-full'
+                  }`}
+                  style={{ display: idx === currentQuestion ? 'block' : 'none' }}
+                >
+                  <div className="bg-extrablack rounded-xl border border-white/10 shadow-lg p-8">
+                    <div className="flex items-start mb-6">
+                      {question.critical ? (
+                        <AlertCircle size={36} className="text-red-400 mr-4 flex-shrink-0 mt-1" />
+                      ) : (
+                        <HelpCircle size={36} className="text-primary mr-4 flex-shrink-0 mt-1" />
+                      )}
+                      <div>
+                        <h3 className="text-2xl text-white font-medium mb-2">{question.text}</h3>
+                        <p className="text-white/70 text-lg">{question.description || "Your answer helps us provide better recommendations for your wellness journey."}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-8">
+                      <label className="block text-white/80 text-xl mb-3">Your answer:</label>
+                      <textarea
+                        placeholder="Type your answer here..."
+                        value={answers[question.vital]?.[question.key] || ''}
+                        onChange={handleChange(question.vital, question.key)}
+                        className="w-full p-6 rounded-lg text-black text-xl min-h-32 focus:ring-2 focus:ring-primary"
+                        required
+                      />
+                    </div>
+                    
+                    {question.hint && (
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mt-4">
+                        <p className="text-white/90 flex items-start">
+                          <span className="text-primary mr-2">💡</span>
+                          {question.hint}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))
-        ) : (
-          <p className="text-white text-center">
-            All your vital measurements are within normal ranges. No additional questions.
-          </p>
+          ) : (
+            <div className="bg-extrablack rounded-xl border border-white/10 shadow-lg p-8 text-center">
+              <div className="flex flex-col items-center justify-center py-12">
+                <CheckCircle size={80} className="text-green-400 mb-6" />
+                <h2 className="text-3xl font-bold text-white mb-4">Great News!</h2>
+                <p className="text-xl text-white/80 max-w-xl mx-auto mb-8">
+                  All your vital measurements are within normal ranges. No additional questions are needed at this time.
+                </p>
+                <button
+                  onClick={handleSubmit}
+                  className="py-6 px-12 bg-primary rounded-lg text-white font-semibold text-xl hover:bg-primary/90 transition-colors flex items-center"
+                >
+                  Continue to Recommendations
+                  <ArrowRight size={24} className="ml-2" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Navigation Buttons */}
+        {questions.length > 0 && (
+          <div className="flex justify-between gap-6 mt-8">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              disabled={currentQuestion === 0}
+              className={`py-6 px-8 rounded-lg text-white font-medium text-xl border border-white/20 transition-colors ${
+                currentQuestion === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/5'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!isCurrentQuestionAnswered()}
+              className={`flex-1 py-6 rounded-lg text-white font-medium text-xl transition-colors flex items-center justify-center ${
+                isCurrentQuestionAnswered() 
+                  ? 'bg-primary hover:bg-primary/90' 
+                  : 'bg-gray-600 cursor-not-allowed'
+              }`}
+            >
+              {currentQuestion < questions.length - 1 ? 'Next Question' : 'Complete Assessment'}
+              <ArrowRight size={24} className="ml-2" />
+            </button>
+          </div>
         )}
-        <button
-          type="submit"
-          className="w-full py-6 bg-primary rounded-lg text-white font-medium text-lg hover:bg-primary/80 transition-colors"
-        >
-          Continue
-        </button>
-      </form>
+      </div>
 
       {/* Bottom Footer */}
       <footer className="fixed bottom-0 left-0 right-0 bg-secondary/80 backdrop-blur-md p-4 z-20 border-t border-white/10">
