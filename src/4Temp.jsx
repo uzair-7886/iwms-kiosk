@@ -19,7 +19,7 @@ const steps = [
 const VitalsMeasurementBP = () => {
   const dispatch = useDispatch();
   // Read temperature value from Redux store (defaulting to an empty string if not set)
-  const temperature = useSelector((state) => state.vitals.temperature) || "";
+  const temperature = useSelector((state) => state.vitals.temperature) || "37";
   const [tempUnit, setTempUnit] = useState('C');
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ const VitalsMeasurementBP = () => {
 
     // Important: temperature is always stored in Celsius in Redux
     let tempForFeverCheck;
-    
+
     // If displaying in Fahrenheit, we need to check the original Celsius value
     // If displaying in Celsius, use the value directly
     tempForFeverCheck = temp;
@@ -94,7 +94,7 @@ const VitalsMeasurementBP = () => {
     if (isNaN(num)) return '--';
     return toUnit === 'F' ? ((num * 9 / 5) + 32).toFixed(1) : num.toFixed(1);
   };
-  
+
 
   // Function to call the Flask API endpoint to read temperature
   const startRecording = async () => {
@@ -109,6 +109,7 @@ const VitalsMeasurementBP = () => {
         dispatch(setTemperature(temperature.toString()));
         // Always display Celsius
         setTempUnit('C');
+
       } else {
         console.error('Temperature data not available', temperature);
       }
@@ -119,7 +120,7 @@ const VitalsMeasurementBP = () => {
 
   // State and Handlers (no change)
   const [modalOpen, setModalOpen] = useState(false);
-  const [sliderValue, setSliderValue] = useState(temperature ? parseFloat(temperature) : 36.5);
+  const [sliderValue, setSliderValue] = useState(parseFloat(temperature) || 37);
 
   const handleTemperatureClick = () => {
     setSliderValue(parseFloat(temperature) || 36.5);
@@ -129,13 +130,13 @@ const VitalsMeasurementBP = () => {
   const applyTemperature = () => {
     // Always store the actual temperature value (in Celsius) in Redux
     let valueToStore = sliderValue;
-    
+
     // If user is working in Fahrenheit, convert to Celsius for storage
     if (tempUnit === 'F') {
       // Convert from display value (F) back to storage value (C)
       valueToStore = ((parseFloat(convertTemperature(sliderValue, 'F')) - 32) * 5 / 9);
     }
-    
+
     dispatch(setTemperature(valueToStore.toString()));
     setModalOpen(false);
   };

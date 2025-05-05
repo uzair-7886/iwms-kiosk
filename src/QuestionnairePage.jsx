@@ -44,7 +44,14 @@ const QuestionnairePage = () => {
 
   // Determine abnormal vitals and questions
   const abnormalities = getAbnormalVitals(vitals);
-  const questions = generateFollowUpQuestions(abnormalities);
+  const rawQuestions = generateFollowUpQuestions(abnormalities);
+  
+  // Enhance questions with predefined answer options
+  const questions = rawQuestions.map(question => {
+    // Add predefined options based on the question key
+    const options = getQuestionOptions(question.vital, question.key);
+    return { ...question, options };
+  });
 
   // Collect user answers
   const [answers, setAnswers] = useState({});
@@ -61,11 +68,10 @@ const QuestionnairePage = () => {
     }
   }, [completed, questions.length]);
 
-  const handleChange = (vital, key) => e => {
-    const val = e.target.value;
+  const handleOptionSelect = (vital, key, value) => {
     setAnswers(prev => ({
       ...prev,
-      [vital]: { ...(prev[vital] || {}), [key]: val }
+      [vital]: { ...(prev[vital] || {}), [key]: value }
     }));
   };
 
@@ -99,7 +105,7 @@ const QuestionnairePage = () => {
     if (questions.length === 0) return true;
     
     const q = questions[currentQuestion];
-    return answers[q.vital]?.[q.key] && answers[q.vital][q.key].trim() !== '';
+    return answers[q.vital]?.[q.key] !== undefined;
   };
 
   // Submit questionnaire and navigate
@@ -215,14 +221,76 @@ const QuestionnairePage = () => {
                     </div>
                     
                     <div className="mt-8">
-                      <label className="block text-white/80 text-xl mb-3">Your answer:</label>
-                      <textarea
-                        placeholder="Type your answer here..."
-                        value={answers[question.vital]?.[question.key] || ''}
-                        onChange={handleChange(question.vital, question.key)}
-                        className="w-full p-6 rounded-lg text-black text-xl min-h-32 focus:ring-2 focus:ring-primary"
-                        required
-                      />
+                      <label className="block text-white/80 text-xl mb-3">Select your answer:</label>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {question.options && question.options.map((option, optionIdx) => (
+                          <div 
+                            key={optionIdx}
+                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                              answers[question.vital]?.[question.key] === option.value
+                                ? 'bg-primary/20 border-primary'
+                                : 'bg-white/5 border-white/20 hover:bg-white/10'
+                            }`}
+                            onClick={() => handleOptionSelect(question.vital, question.key, option.value)}
+                          >
+                            <div className="flex items-center">
+                              <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
+                                answers[question.vital]?.[question.key] === option.value
+                                  ? 'bg-primary'
+                                  : 'border border-white/50'
+                              }`}>
+                                {answers[question.vital]?.[question.key] === option.value && (
+                                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                                )}
+                              </div>
+                              <span className="text-lg text-white">{option.label}</span>
+                            </div>
+                            {option.description && (
+                              <p className="text-white/70 mt-2 pl-8 text-sm">{option.description}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Option for "Other" with text input if needed */}
+                      {question.allowCustom && (
+                        <div className="mt-4">
+                          <div 
+                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                              answers[question.vital]?.[question.key] === 'other'
+                                ? 'bg-primary/20 border-primary'
+                                : 'bg-white/5 border-white/20 hover:bg-white/10'
+                            }`}
+                            onClick={() => handleOptionSelect(question.vital, question.key, 'other')}
+                          >
+                            <div className="flex items-center">
+                              <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
+                                answers[question.vital]?.[question.key] === 'other'
+                                  ? 'bg-primary'
+                                  : 'border border-white/50'
+                              }`}>
+                                {answers[question.vital]?.[question.key] === 'other' && (
+                                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                                )}
+                              </div>
+                              <span className="text-lg text-white">Other (please specify)</span>
+                            </div>
+                          </div>
+                          
+                          {answers[question.vital]?.[question.key] === 'other' && (
+                            <textarea
+                              placeholder="Please specify your answer..."
+                              value={answers[question.vital]?.otherText || ''}
+                              onChange={(e) => setAnswers(prev => ({
+                                ...prev,
+                                [question.vital]: { ...(prev[question.vital] || {}), otherText: e.target.value }
+                              }))}
+                              className="w-full p-3 rounded-lg text-black text-lg mt-2 focus:ring-2 focus:ring-primary"
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
                     
                     {question.hint && (
@@ -310,5 +378,156 @@ const QuestionnairePage = () => {
     </div>
   );
 };
+
+// Helper function to get predefined options for each question
+function getQuestionOptions(vital, key) {
+  const optionsMap = {
+    // BMI Questions
+    familyHistoryObesity: [
+      { value: 'yes', label: 'Yes', description: 'Close family members have obesity issues' },
+      { value: 'no', label: 'No', description: 'No known family history of obesity' },
+      { value: 'unsure', label: 'Not sure', description: 'I dont have enough information' }
+    ],
+    exerciseHabits: [
+      { value: 'none', label: 'None', description: 'I rarely or never exercise' },
+      { value: 'light', label: '1-2 days/week', description: 'Light exercise once or twice a week' },
+      { value: 'moderate', label: '3-4 days/week', description: 'Regular moderate exercise' },
+      { value: 'active', label: '5+ days/week', description: 'Active lifestyle with frequent exercise' }
+    ],
+    unintendedWeightLoss: [
+      { value: 'none', label: 'No weight loss', description: 'My weight has been stable' },
+      { value: 'slight', label: 'Slight (1-5 lbs)', description: 'Lost a small amount unintentionally' },
+      { value: 'moderate', label: 'Moderate (5-10 lbs)', description: 'Notable weight loss without trying' },
+      { value: 'significant', label: 'Significant (10+ lbs)', description: 'Substantial unintended weight loss' }
+    ],
+    dietaryIntake: [
+      { value: 'insufficient', label: 'Insufficient', description: 'I often skip meals or eat very little' },
+      { value: 'adequate', label: 'Adequate', description: 'I eat regular meals with sufficient calories' },
+      { value: 'excessive', label: 'More than needed', description: 'I eat more than my body requires' }
+    ],
+    
+    // Blood Pressure Questions
+    familyHistoryBP: [
+      { value: 'yes', label: 'Yes', description: 'Family history of high blood pressure' },
+      { value: 'no', label: 'No', description: 'No known family history of high blood pressure' },
+      { value: 'unsure', label: 'Not sure', description: 'I dont have enough information' }
+    ],
+    highSaltDiet: [
+      { value: 'yes', label: 'Yes', description: 'I consume many salty foods or add salt regularly' },
+      { value: 'moderate', label: 'Moderate', description: 'Im somewhat careful about salt intake' },
+      { value: 'no', label: 'No', description: 'I follow a low-sodium diet' }
+    ],
+    bpMeds: [
+      { value: 'yes', label: 'Yes', description: 'Currently taking BP medication' },
+      { value: 'no', label: 'No', description: 'Not on any BP medication' },
+      { value: 'previous', label: 'Previously', description: 'Have taken BP medication in the past' }
+    ],
+    dizziness: [
+      { value: 'frequent', label: 'Frequently', description: 'I often feel dizzy or lightheaded' },
+      { value: 'occasional', label: 'Occasionally', description: 'I sometimes experience dizziness' },
+      { value: 'rare', label: 'Rarely', description: 'I rarely experience dizziness' },
+      { value: 'never', label: 'Never', description: 'I never feel dizzy or lightheaded' }
+    ],
+    hydration: [
+      { value: 'dehydrated', label: 'Dehydrated', description: 'Ive had very little to drink today' },
+      { value: 'adequate', label: 'Adequately hydrated', description: 'Ive had a normal amount of fluids' },
+      { value: 'wellHydrated', label: 'Well hydrated', description: 'Ive been drinking plenty of fluids' }
+    ],
+    
+    // Heart Rate Questions
+    recentExercise: [
+      { value: 'yes', label: 'Yes', description: 'Exercised within the last hour' },
+      { value: 'light', label: 'Light activity', description: 'Light activity in the past hour' },
+      { value: 'no', label: 'No', description: 'Have been resting for at least an hour' }
+    ],
+    anxiety: [
+      { value: 'high', label: 'Very anxious', description: 'Feeling very stressed or anxious' },
+      { value: 'moderate', label: 'Moderately anxious', description: 'Feeling somewhat stressed' },
+      { value: 'slight', label: 'Slightly anxious', description: 'Feeling a little on edge' },
+      { value: 'none', label: 'Not anxious', description: 'Feeling calm and relaxed' }
+    ],
+    fatigue: [
+      { value: 'severe', label: 'Severely fatigued', description: 'Extremely tired, struggling to function' },
+      { value: 'moderate', label: 'Moderately fatigued', description: 'Definitely tired but managing' },
+      { value: 'mild', label: 'Mildly fatigued', description: 'A bit tired but not significantly' },
+      { value: 'none', label: 'Not fatigued', description: 'Feeling well-rested and energetic' }
+    ],
+    athlete: [
+      { value: 'professional', label: 'Professional athlete', description: 'Compete or train at a high level' },
+      { value: 'serious', label: 'Serious fitness enthusiast', description: 'Train intensively and regularly' },
+      { value: 'recreational', label: 'Recreational athlete', description: 'Exercise regularly for fitness' },
+      { value: 'no', label: 'Not athletic', description: 'Dont engage in regular intense exercise' }
+    ],
+    
+    // Temperature Questions
+    infectionSymptoms: [
+      { value: 'multiple', label: 'Multiple symptoms', description: 'Several signs of infection (cough, pain, etc.)' },
+      { value: 'mild', label: 'Mild symptoms', description: 'One or two mild symptoms' },
+      { value: 'none', label: 'No symptoms', description: 'No signs of infection' }
+    ],
+    medicationFever: [
+      { value: 'recent', label: 'Yes, recently', description: 'Took medication in the last 4-6 hours' },
+      { value: 'earlier', label: 'Yes, earlier today', description: 'Took medication more than 6 hours ago' },
+      { value: 'no', label: 'No', description: 'Havent taken any fever-reducing medication' }
+    ],
+    feelingCold: [
+      { value: 'very', label: 'Very cold', description: 'Feeling extremely cold, shivering' },
+      { value: 'somewhat', label: 'Somewhat cold', description: 'Feeling chilly but not severely' },
+      { value: 'no', label: 'Not cold', description: 'Temperature feels comfortable' }
+    ],
+    thyroid: [
+      { value: 'yes', label: 'Yes', description: 'Diagnosed with thyroid condition' },
+      { value: 'suspected', label: 'Suspected but not diagnosed', description: 'Symptoms suggest thyroid issues' },
+      { value: 'no', label: 'No', description: 'No known thyroid issues' },
+      { value: 'unsure', label: 'Not sure', description: 'Dont have enough information' }
+    ],
+    
+    // SpO2 Questions
+    breathingIssues: [
+      { value: 'severe', label: 'Severe', description: 'Significant difficulty breathing' },
+      { value: 'moderate', label: 'Moderate', description: 'Noticeable shortness of breath' },
+      { value: 'mild', label: 'Mild', description: 'Slight breathing difficulty' },
+      { value: 'none', label: 'None', description: 'Breathing normally' }
+    ],
+    knownLungIssues: [
+      { value: 'yes', label: 'Yes', description: 'Diagnosed with respiratory condition' },
+      { value: 'suspected', label: 'Suspected', description: 'Not diagnosed but suspect issues' },
+      { value: 'previous', label: 'Previous issues', description: 'Had respiratory issues in the past' },
+      { value: 'no', label: 'No', description: 'No known respiratory conditions' }
+    ],
+    
+    // Glucose Questions
+    recentMeal: [
+      { value: 'lastHour', label: 'Within the last hour', description: 'Recently consumed food' },
+      { value: '1-2hours', label: '1-2 hours ago', description: 'Ate a while ago' },
+      { value: '2-4hours', label: '2-4 hours ago', description: 'Several hours since eating' },
+      { value: '4plus', label: '4+ hours ago', description: 'Long time since last meal' }
+    ],
+    frequentUrination: [
+      { value: 'very', label: 'Very frequent', description: 'Urinating much more than usual' },
+      { value: 'somewhat', label: 'Somewhat frequent', description: 'Urinating more than usual' },
+      { value: 'no', label: 'No change', description: 'Normal urination pattern' }
+    ],
+    diabetesMedication: [
+      { value: 'insulin', label: 'Insulin', description: 'Took insulin recently' },
+      { value: 'oral', label: 'Oral medication', description: 'Taking diabetes pills' },
+      { value: 'both', label: 'Both insulin and oral meds', description: 'Taking multiple diabetes medications' },
+      { value: 'none', label: 'None', description: 'Not on diabetes medication' },
+      { value: 'notDiabetic', label: 'Not diabetic', description: 'Dont have diabetes' }
+    ],
+    symptomsLowSugar: [
+      { value: 'severe', label: 'Severe symptoms', description: 'Shaking, sweating, confusion, etc.' },
+      { value: 'mild', label: 'Mild symptoms', description: 'Slight symptoms of low blood sugar' },
+      { value: 'none', label: 'No symptoms', description: 'Feeling normal' }
+    ]
+  };
+  
+  // Return predefined options or a default set
+  return optionsMap[key] || [
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' },
+    { value: 'unsure', label: 'Not sure' }
+  ];
+}
 
 export default QuestionnairePage;
