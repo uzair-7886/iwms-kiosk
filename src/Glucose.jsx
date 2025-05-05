@@ -172,10 +172,8 @@ const VitalsMeasurementGlucose = () => {
               onClick={() => setGlucoseModalOpen(true)}
               className="text-5xl bg-transparent w-full text-white outline-none text-left"
             >
-              {glucose || '---'}
+              {glucose || 100}
             </button>
-
-
             <span className="text-2xl text-gray-400">mg/dL</span>
           </div>
 
