@@ -26,7 +26,7 @@ const RecommendationsPage = () => {
          if (localStorage.getItem('token')) {
            localStorage.removeItem('token');           
          }
-         navigate('/login');
+         navigate('/');
        };
 
   // Weather

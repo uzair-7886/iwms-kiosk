@@ -99,27 +99,21 @@ const VitalsMeasurementBP = () => {
   // Function to call the Flask API endpoint to read temperature
   const startRecording = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/temperature', { method: 'POST' });
-      const data = await response.json();
-      if (data.temperature) {
-        // Always store temperature in Celsius in Redux, regardless of display unit
-        let tempValue = parseFloat(data.temperature);
-        
-        // If the API returned Fahrenheit, convert to Celsius for storage
-        if (data.unit.includes("F")) {
-          tempValue = (tempValue - 32) * 5 / 9;
-        }
-        
-        // Dispatch the temperature (in Celsius) to the Redux store
-        dispatch(setTemperature(tempValue.toString()));
-        
-        // Set the display unit
-        setTempUnit(data.unit.includes("F") ? "F" : "C");
+      const response = await fetch('http://127.0.0.1:5000/temperature', {
+        method: 'GET'
+      });
+      const { temperature } = await response.json();
+  
+      if (temperature != null) {
+        // API returns Celsius directly—store as string in Redux
+        dispatch(setTemperature(temperature.toString()));
+        // Always display Celsius
+        setTempUnit('C');
       } else {
-        console.error("Temperature data not available", data);
+        console.error('Temperature data not available', temperature);
       }
     } catch (error) {
-      console.error("Error recording temperature:", error);
+      console.error('Error recording temperature:', error);
     }
   };
 

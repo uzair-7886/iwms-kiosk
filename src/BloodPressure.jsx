@@ -74,6 +74,8 @@ const VitalsMeasurementBP = () => {
     setDropdownOpen(false);
   };
 
+
+
   // Handle blood pressure changes
   const handleBloodPressureChange = (value) => {
     const newBP = {
@@ -81,6 +83,26 @@ const VitalsMeasurementBP = () => {
       [activeBPType]: parseInt(value)
     };
     setLocalBloodPressure(newBP);
+  };
+
+  const startRecordingBP = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/bloodpressure', {
+        method: 'GET'
+      });
+      const { systolic, diastolic } = await response.json();
+  
+      if (systolic != null && diastolic != null) {
+        // update local state
+        setLocalBloodPressure({ systolic, diastolic });
+        // dispatch to Redux
+        dispatch(setReduxBloodPressure({ systolic, diastolic }));
+      } else {
+        console.error('Blood pressure data not available', { systolic, diastolic });
+      }
+    } catch (error) {
+      console.error('Error recording blood pressure:', error);
+    }
   };
 
   return (
@@ -289,7 +311,7 @@ const VitalsMeasurementBP = () => {
 
 
           {/* Heart Rate Panel as input */}
-          <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
+          {/* <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold text-2xl">{t('blood_pressure.bpm')}</span>
               <button
@@ -306,12 +328,20 @@ const VitalsMeasurementBP = () => {
               className="text-5xl bg-transparent text-white outline-none w-full"
             />
             <span className="text-2xl text-gray-400">BPM</span>
-          </div>
+          </div> */}
         </div>
 
         <p className="text-center text-gray-300 mb-8 text-xl">
           {t('blood_pressure.heart_rate_instruction')}
         </p>
+        <div className="flex flex-col w-full gap-4 mx-auto mb-4">
+          <button
+            onClick={startRecordingBP}
+            className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
+          >
+            Start Recording
+          </button>
+        </div>
 
         <div className="flex flex-col gap-4 mx-auto">
           <button
