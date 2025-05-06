@@ -125,14 +125,12 @@ const QuestionnairePage = () => {
       />
 
       {/* Navigation */}
-      <nav className="flex justify-between items-center px-12 py-6 w-full max-w-7xl mx-auto">
+      <nav className="flex justify-between items-center px-12 py-12 w-full max-w-7xl mx-auto">
         <img src="/logo-nav.svg" alt="Reviva" className="h-8" />
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 text-white text-xl">
-            <img src="/weather.svg" alt="Weather" className="w-6 h-6" />
-            <span className="text-lg font-bold">
-              {weather !== null ? `${weather}°C` : '--°C'}
-            </span>
+            <img src="/weather.svg" alt="Temperature" className="w-6 h-6" />
+            <span className="text-lg font-bold">{weather !== null ? `${weather}° C` : "--° C"}</span>
           </div>
           <div className="h-8 w-px bg-white/20" />
           <div className="flex flex-col items-center text-white">
@@ -142,7 +140,7 @@ const QuestionnairePage = () => {
           <div className="h-8 w-px bg-white/20" />
           <div className="relative">
             <button
-              className="flex items-center gap-2 text-white border border-white/25 px-3 py-1 rounded-md"
+              className="flex items-center gap-2 text-white cursor-pointer border border-white/25 px-3 py-1 rounded-md"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <img
@@ -151,21 +149,21 @@ const QuestionnairePage = () => {
                 className="w-6 h-6 rounded-full"
               />
               <span className="text-lg">{languages[i18n.language].label}</span>
-              <ChevronDown size={16} className="text-white" />
+              <ChevronDown size={16} />
             </button>
             {dropdownOpen && (
-              <ul className="absolute right-0 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50">
+              <div className="absolute top-10 left-0 w-full bg-gray-800 border border-white/25 rounded-md shadow-lg">
                 {Object.entries(languages).map(([lang, { flag, label }]) => (
-                  <li
+                  <div
                     key={lang}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => { i18n.changeLanguage(lang); setDropdownOpen(false); }}
+                    className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-700"
+                    onClick={() => handleLanguageChange(lang)}
                   >
-                    <img src={flag} alt={`${lang} flag`} className="w-5 h-5 rounded-full" />
-                    <span>{label}</span>
-                  </li>
+                    <img src={flag} alt={label} className="w-5 h-5 rounded-full" />
+                    <span className="text-white text-lg">{label}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         </div>
@@ -176,14 +174,14 @@ const QuestionnairePage = () => {
         {/* Header */}
         <div className="text-center text-white mb-8 mt-6">
           <h1 className="text-5xl font-bold text-primary mb-4">Wellness Assessment</h1>
-          <p className="text-xl opacity-90">Help us understand your health better with a few questions</p>
+          <p className="text-xl opacity-90 mb-4">Help us understand your health better with a few questions</p>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full mb-8">
+        <div className="w-full mb-16">
           <div className="flex justify-between text-white mb-2">
-            <span className="text-lg">{questions.length > 0 ? `Question ${currentQuestion + 1} of ${questions.length}` : 'Assessment'}</span>
-            <span className="text-lg">{Math.round(questionProgress)}% Complete</span>
+            <span className="text-xl">{questions.length > 0 ? `Question ${currentQuestion + 1} of ${questions.length}` : 'Assessment'}</span>
+            <span className="text-xl">{Math.round(questionProgress)}% Complete</span>
           </div>
           <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
             <div 
@@ -216,14 +214,14 @@ const QuestionnairePage = () => {
                       )}
                       <div>
                         <h3 className="text-2xl text-white font-medium mb-2">{question.text}</h3>
-                        <p className="text-white/70 text-lg">{question.description || "Your answer helps us provide better recommendations for your wellness journey."}</p>
+                        <p className="text-white/70 text-xl">{question.description || "Your answer helps us provide better recommendations for your wellness journey."}</p>
                       </div>
                     </div>
                     
                     <div className="mt-8">
                       <label className="block text-white/80 text-xl mb-3">Select your answer:</label>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         {question.options && question.options.map((option, optionIdx) => (
                           <div 
                             key={optionIdx}
@@ -244,10 +242,10 @@ const QuestionnairePage = () => {
                                   <div className="w-2 h-2 bg-white rounded-full"></div>
                                 )}
                               </div>
-                              <span className="text-lg text-white">{option.label}</span>
+                              <span className="text-xl text-white">{option.label}</span>
                             </div>
                             {option.description && (
-                              <p className="text-white/70 mt-2 pl-8 text-sm">{option.description}</p>
+                              <p className="text-white/70 text-lg mt-2 pl-8">{option.description}</p>
                             )}
                           </div>
                         ))}
