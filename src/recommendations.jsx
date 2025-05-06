@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { ChevronDown, Phone, QrCode, ArrowRight, Heart, Activity, Thermometer, Droplet, Clipboard, BarChart2 } from 'lucide-react';
 import i18n from './i18n';
 import { evaluateRecommendations } from './services/recommendations';
+import { resetVitals } from './redux/vitalsSlice';
 
 // Mapping of vital types to specific icons - updated to match code 2's style
 const VITAL_ICONS = {
@@ -229,6 +230,7 @@ const RecommendationsPage = () => {
   const vitals = navState.vitals || useSelector(state => state.vitals);
   const answers = navState.answers || {};
   const hasSaved = useRef(false);
+  const dispatch = useDispatch();
 
   // Clock
   const [time, setTime] = useState(new Date());
@@ -240,6 +242,7 @@ const RecommendationsPage = () => {
 
   
       const handleDone = () => {
+        dispatch(resetVitals());
          if (localStorage.getItem('token')) {
            localStorage.removeItem('token');           
          }
@@ -308,12 +311,6 @@ const RecommendationsPage = () => {
     saveRecs();
   }, [recData]);
 
-  const handleDone = () => {
-    if (localStorage.getItem('token')) {
-      localStorage.removeItem('token');
-    }
-    navigate('/login');
-  };
 
   // Group recommendations by category for better organization
   const groupedRecs = {};

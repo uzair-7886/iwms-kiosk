@@ -64,6 +64,62 @@ const SummaryPage = () => {
   const i18n = { language: 'en' };
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (hasSaved.current) return;
+    if (!token) return; // not logged in, skip
+
+    const baseUrl = 'http://localhost:8080';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    const saveMeasurements = async () => {
+      try {
+        if (weight) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/weight?weight=${weight}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (temperature) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/temperature?temperature=${temperature}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (bloodPressure?.systolic && bloodPressure?.diastolic) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/blood-pressure?systolic=${bloodPressure.systolic}&diastolic=${bloodPressure.diastolic}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (glucose) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/glucose?glucoseLevel=${glucose}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (spo2) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/blood-oxygen?bloodOxygen=${spo2}`,
+            { method: 'POST', headers }
+          );
+        }
+        if (heartRate) {
+          await fetch(
+            `${baseUrl}/api/measurements/add/heart-rate?heartRate=${heartRate}`,
+            { method: 'POST', headers }
+          );
+        }
+      } catch (error) {
+        console.error('Error saving measurements:', error);
+      }
+    };
+    hasSaved.current=true
+    saveMeasurements();
+  }, [weight, temperature, bloodPressure, glucose, spo2, heartRate]);
+
+  useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
