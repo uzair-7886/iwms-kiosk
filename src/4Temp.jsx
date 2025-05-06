@@ -28,7 +28,9 @@ const VitalsMeasurementBP = () => {
   const [weather, setWeather] = useState(null);
   const [feverStatus, setFeverStatus] = useState('No Fever');
   const location = useLocation();
-
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState(false);
+  
   const currentStep = steps.findIndex(step => step.path === location.pathname);
 
   const moveNext = () => {
@@ -97,27 +99,49 @@ const VitalsMeasurementBP = () => {
 
 
   // Function to call the Flask API endpoint to read temperature
+  // const startRecording = async () => {
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:5000/temperature', {
+  //       method: 'GET'
+  //     });
+  //     const { temperature } = await response.json();
+  
+  //     if (temperature != null) {
+  //       // API returns Celsius directly—store as string in Redux
+  //       dispatch(setTemperature(temperature.toString()));
+  //       // Always display Celsius
+  //       setTempUnit('C');
+
+  //     } else {
+  //       console.error('Temperature data not available', temperature);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error recording temperature:', error);
+  //   }
+  // };
+
   const startRecording = async () => {
+    setIsRecording(true);
+    setRecordingError(false);
     try {
-      const response = await fetch('http://127.0.0.1:5000/temperature', {
-        method: 'GET'
-      });
+      const response = await fetch('http://127.0.0.1:5000/temperature', { method: 'GET' });
       const { temperature } = await response.json();
   
       if (temperature != null) {
-        // API returns Celsius directly—store as string in Redux
         dispatch(setTemperature(temperature.toString()));
-        // Always display Celsius
         setTempUnit('C');
-
       } else {
-        console.error('Temperature data not available', temperature);
+        console.error('Temperature data not available');
+        setRecordingError(true);
       }
     } catch (error) {
       console.error('Error recording temperature:', error);
+      setRecordingError(true);
+    } finally {
+      setTimeout(() => setIsRecording(false), 1000); // To simulate a delay for smoother feedback
     }
   };
-
+  
   // State and Handlers (no change)
   const [modalOpen, setModalOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState(parseFloat(temperature) || 37);
@@ -234,6 +258,9 @@ const VitalsMeasurementBP = () => {
               alt="Temperature Measurement in progress"
               className="w-64 h-64 object-contain"
             />
+          </div>
+          <div className="bg-extrablack text-white py-8 px-16 rounded-lg text-xl max-w-5xl mt-4 text-center">
+            <strong className="text-primary">Tip:</strong> Tap on the value below to manually enter your measurement. <br /> Use the slider in the pop-up to adjust, then press <strong className="text-primary">Save</strong> to confirm.
           </div>
           <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between  mb-4">
@@ -359,11 +386,20 @@ const VitalsMeasurementBP = () => {
         <p className="text-center text-gray-300 mb-10 text-xl">{t('temperature.temp_instruction')}</p>
         {/* "Start Recording" Button */}
         <div className="flex flex-col w-full gap-4 mx-auto mb-4">
-          <button
+          {/* <button
             onClick={startRecording}
             className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
           >
             Start Recording
+          </button> */}
+                    <button
+            onClick={startRecording}
+            disabled={isRecording}
+            className={`w-full py-6 mb-4 rounded-lg text-white text-lg font-medium transition-colors 
+    ${isRecording ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary hover:bg-primary/80'}
+  `}
+          >
+            {isRecording ? 'Fetching Temperature...' : 'Start Recording'}
           </button>
         </div>
         <div className="flex flex-col gap-4 mx-auto">

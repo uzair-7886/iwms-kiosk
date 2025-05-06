@@ -28,6 +28,8 @@ const VitalsMeasurementBP = () => {
   const [weather, setWeather] = useState(null);
   const [showChart, setShowChart] = useState(false);
   const location = useLocation();
+  const [isRecording, setIsRecording] = useState(false);
+
 
   const [bloodPressure, setLocalBloodPressure] = useState({
     systolic: 120,
@@ -85,23 +87,44 @@ const VitalsMeasurementBP = () => {
     setLocalBloodPressure(newBP);
   };
 
+  // const startRecordingBP = async () => {
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:5000/bloodpressure', {
+  //       method: 'GET'
+  //     });
+  //     const { systolic, diastolic } = await response.json();
+
+  //     if (systolic != null && diastolic != null) {
+  //       // update local state
+  //       setLocalBloodPressure({ systolic, diastolic });
+  //       // dispatch to Redux
+  //       dispatch(setReduxBloodPressure({ systolic, diastolic }));
+  //     } else {
+  //       console.error('Blood pressure data not available', { systolic, diastolic });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error recording blood pressure:', error);
+  //   }
+  // };
+
   const startRecordingBP = async () => {
+    setIsRecording(true);
     try {
       const response = await fetch('http://127.0.0.1:5000/bloodpressure', {
         method: 'GET'
       });
       const { systolic, diastolic } = await response.json();
-  
+
       if (systolic != null && diastolic != null) {
-        // update local state
         setLocalBloodPressure({ systolic, diastolic });
-        // dispatch to Redux
         dispatch(setReduxBloodPressure({ systolic, diastolic }));
       } else {
         console.error('Blood pressure data not available', { systolic, diastolic });
       }
     } catch (error) {
       console.error('Error recording blood pressure:', error);
+    } finally {
+      setIsRecording(false);
     }
   };
 
@@ -204,6 +227,11 @@ const VitalsMeasurementBP = () => {
               className="w-64 h-64 object-contain"
             />
           </div>
+
+          <div className="bg-extrablack text-white py-8 px-16 rounded-lg text-xl max-w-5xl mt-4 text-center">
+            <strong className="text-primary">Tip:</strong> Tap on the value below to manually enter your measurement. <br /> Use the slider in the pop-up to adjust, then press <strong className="text-primary">Save</strong> to confirm.
+          </div>
+
           {/* Blood Pressure Panel */}
           <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4 w-full">
@@ -335,12 +363,23 @@ const VitalsMeasurementBP = () => {
           {t('blood_pressure.heart_rate_instruction')}
         </p>
         <div className="flex flex-col w-full gap-4 mx-auto mb-4">
-          <button
+          {/* <button
             onClick={startRecordingBP}
             className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
           >
             Start Recording
+          </button> */}
+
+          <button
+            onClick={startRecordingBP}
+            disabled={isRecording}
+            className={`w-full py-6 mb-4 rounded-lg text-white text-lg font-medium transition-colors 
+    ${isRecording ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary hover:bg-primary/80'}
+  `}
+          >
+            {isRecording ? 'Fetching blood pressure...' : 'Start Recording'}
           </button>
+
         </div>
 
         <div className="flex flex-col gap-4 mx-auto">

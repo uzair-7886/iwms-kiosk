@@ -20,6 +20,7 @@ const steps = [
 const VitalsMeasurementWeight = () => {
   const dispatch = useDispatch();
   const weight = useSelector((state) => state.vitals.weight);
+  const height = useSelector((state) => state.vitals.height); // Assuming height is stored in cm
   const [weightUnit, setWeightUnit] = useState('kg');
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -61,6 +62,15 @@ const VitalsMeasurementWeight = () => {
     };
     fetchWeather();
   }, []);
+
+  useEffect(() => {
+    if (height && weight) {
+      const heightInMeters = height / 100;
+      const bmiValue = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+      setBmi(bmiValue);
+    }
+  }, [height, weight]);
+
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
@@ -185,7 +195,9 @@ const VitalsMeasurementWeight = () => {
               className="w-64 h-64 object-contain"
             />
           </div>
-
+          <div className="bg-extrablack text-white py-8 px-16 rounded-lg text-xl max-w-5xl mt-4 text-center">
+            <strong className="text-primary">Tip:</strong> Tap on the value below to manually enter your measurement. <br /> Use the slider in the pop-up to adjust, then press <strong className="text-primary">Save</strong> to confirm.
+          </div>
           {/* Weight Handler Container */}
 
           <div className="bg-extrablack rounded-xl w-full p-6 border border-white/35 flex-1">
