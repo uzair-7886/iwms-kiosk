@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSpo2,setHeartRate as setHeartRateAction } from './redux/vitalsSlice';
+import { setSpo2, setHeartRate as setHeartRateAction } from './redux/vitalsSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,11 @@ const VitalsMeasurementOxygen = () => {
     const [heartRate, setHeartRate] = useState(null);
     const [showChart, setShowChart] = useState(false);
     const location = useLocation();
+    const [isRecording, setRecording] = useState(false);
+    const [showHeartRateModal, setShowHeartRateModal] = useState(false);
+    const [tempHeartRate, setTempHeartRate] = useState(72); // default BPM
+
+
 
     const [showSpo2Modal, setShowSpo2Modal] = useState(false);
     const [tempSpo2, setTempSpo2] = useState(oxygenLevel || 98); // default normal value
@@ -37,28 +42,50 @@ const VitalsMeasurementOxygen = () => {
         setShowSpo2Modal(false);
     };
 
-    const startRecordingVitals = async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:5000/spo2', {
-            method: 'GET'
-          });
-          const { spo2, heartRate: hr } = await response.json();
-      
-          if (spo2 != null && hr != null) {
-            // store in Redux
-            dispatch(setSpo2(spo2.toString()));
-            dispatch(setHeartRateAction(hr.toString()));
-            // update local UI state
-            setHeartRate(hr);
-            setSpo2(spo2);
-          } else {
-            console.error('Vitals data not available', { spo2, hr });
-          }
-        } catch (error) {
-          console.error('Error recording vitals:', error);
-        }
-      };
+    // const startRecordingVitals = async () => {
+    //     try {
+    //         const response = await fetch('http://127.0.0.1:5000/spo2', {
+    //             method: 'GET'
+    //         });
+    //         const { spo2, heartRate: hr } = await response.json();
 
+    //         if (spo2 != null && hr != null) {
+    //             // store in Redux
+    //             dispatch(setSpo2(spo2.toString()));
+    //             dispatch(setHeartRateAction(hr.toString()));
+    //             // update local UI state
+    //             setHeartRate(hr);
+    //             setSpo2(spo2);
+    //         } else {
+    //             console.error('Vitals data not available', { spo2, hr });
+    //         }
+    //     } catch (error) {
+    //         console.error('Error recording vitals:', error);
+    //     }
+    // };
+
+    const startRecordingVitals = async () => {
+        setRecording(true);
+        try {
+            const response = await fetch('http://127.0.0.1:5000/spo2', {
+                method: 'GET'
+            });
+            const { spo2, heartRate: hr } = await response.json();
+
+            if (spo2 != null && hr != null) {
+                dispatch(setSpo2(spo2.toString()));
+                dispatch(setHeartRateAction(hr.toString()));
+                setHeartRate(hr);
+                setSpo2(spo2);
+            } else {
+                console.error('Vitals data not available', { spo2, hr });
+            }
+        } catch (error) {
+            console.error('Error recording vitals:', error);
+        } finally {
+            setRecording(false);
+        }
+    };
 
     const currentStep = steps.findIndex(step => step.path === location.pathname);
 
@@ -193,6 +220,9 @@ const VitalsMeasurementOxygen = () => {
                             className="w-64 h-64 object-contain" // Adjust size if needed
                         />
                     </div>
+                    <div className="bg-extrablack text-white py-8 px-16 rounded-lg text-xl max-w-5xl mt-4 text-center">
+                        <strong className="text-primary">Tip:</strong> Tap on the value below to manually enter your measurement. <br /> Use the slider in the pop-up to adjust, then press <strong className="text-primary">Save</strong> to confirm.
+                    </div>
                     {/* Oxygen Panel */}
                     <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
                         <div className="flex justify-between items-center mb-4">
@@ -217,12 +247,72 @@ const VitalsMeasurementOxygen = () => {
                                 {t('blood_pressure.view_chart')}
                             </button>
                         </div>
-                        <div className="text-4xl text-white mb-4">
-                            {heartRate ? heartRate : 'N/A'}
+                        <div
+                            className="text-4xl text-white mb-4 cursor-pointer"
+                            onClick={() => setShowHeartRateModal(true)}
+                        >
+                            {heartRate || 72}
                         </div>
+
                         <span className="text-2xl text-gray-400">BPM</span>
                     </div>
                 </div>
+
+                {showHeartRateModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                        <div className="bg-extrablack rounded-lg p-8 w-[500px] md:w-[600px]">
+                            <div className="flex justify-between items-center mb-6">
+                                <span className="text-white text-2xl font-bold">
+                                    {t('oxygen.adjust_heart_rate') || "Adjust Heart Rate"}
+                                </span>
+                                <button
+                                    className="text-white text-xl"
+                                    onClick={() => setShowHeartRateModal(false)}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className="my-6">
+                                <input
+                                    type="range"
+                                    min="40"
+                                    max="180"
+                                    value={tempHeartRate}
+                                    onChange={(e) => setTempHeartRate(parseInt(e.target.value))}
+                                    className="w-full h-3 bg-gray-600 rounded-lg appearance-none focus:outline-none
+                        [&::-webkit-slider-thumb]:appearance-none
+                        [&::-webkit-slider-thumb]:h-6
+                        [&::-webkit-slider-thumb]:w-6
+                        [&::-webkit-slider-thumb]:rounded-full
+                        [&::-webkit-slider-thumb]:bg-primary
+                        [&::-webkit-slider-thumb]:cursor-pointer
+                        transition-all duration-200"
+                                />
+                                <div className="flex justify-between text-gray-400 text-lg mt-2">
+                                    <span>40 BPM</span>
+                                    <span>180 BPM</span>
+                                </div>
+                            </div>
+
+                            <div className="text-5xl text-white font-bold text-center my-6">
+                                {tempHeartRate} BPM
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setHeartRate(tempHeartRate);
+                                    dispatch(setHeartRateAction(tempHeartRate.toString()));
+                                    setShowHeartRateModal(false);
+                                }}
+                                className="w-full py-3 bg-primary text-white text-xl rounded-lg hover:bg-primary/80 transition"
+                            >
+                                {t('vitals_measurement.confirm') || "Confirm"}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
 
                 {showSpo2Modal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -282,13 +372,23 @@ const VitalsMeasurementOxygen = () => {
                     {t('oxygen.instruction')}
                 </p>
                 <div className="flex flex-col w-full gap-4 mx-auto mb-4">
-          <button
-            onClick={startRecordingVitals}
-            className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
-          >
-            Start Recording
-          </button>
-        </div>
+                    {/* <button
+                        onClick={startRecordingVitals}
+                        className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
+                    >
+                        Start Recording
+                    </button> */}
+                    <button
+                        onClick={startRecordingVitals}
+                        disabled={isRecording}
+                        className={`w-full py-6 mb-4 rounded-lg text-white text-lg font-medium transition-colors 
+    ${isRecording ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary hover:bg-primary/80'}
+  `}
+                    >
+                        {isRecording ? 'Fetching Temperature...' : 'Start Recording'}
+                    </button>
+
+                </div>
                 <div className="flex flex-col gap-4 mx-auto">
                     <button
                         onClick={moveNext}

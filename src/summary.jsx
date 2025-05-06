@@ -48,8 +48,9 @@ const SummaryPage = () => {
   const [weather, setWeather] = useState(27.5); // Mock weather data
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedVital, setSelectedVital] = useState(null);
+  const height = useSelector((state) => state.vitals.height); // Assuming height is stored in cm
 
-  const hasSaved = useRef(false);
+
 
   // Get vitals from Redux store (or use mock data for demonstration)
   const { weight, bloodPressure, temperature, glucose, spo2, heartRate } = useSelector((state) => state.vitals) || mockVitals;
@@ -115,7 +116,7 @@ const SummaryPage = () => {
         console.error('Error saving measurements:', error);
       }
     };
-    hasSaved.current=true
+    hasSaved.current = true
     saveMeasurements();
   }, [weight, temperature, bloodPressure, glucose, spo2, heartRate]);
 
@@ -123,6 +124,12 @@ const SummaryPage = () => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const heightInMeters = height ? height / 100 : null;
+  const bmi = weight && heightInMeters
+    ? (weight / (heightInMeters ** 2)).toFixed(1)
+    : null;
+  const hasSaved = useRef(false);
 
   // Define expected normal ranges
   const normalRanges = {
@@ -135,26 +142,69 @@ const SummaryPage = () => {
     glucose: { min: 70, max: 100 }, // mg/dL before meals
     spo2: { min: 95, max: 100 }, // %
     heartRate: { min: 60, max: 100 }, // bpm
+    bmi: { min: 18.5, max: 24.9 }, // normal BMI range
   };
+  const getProgressWidth = (id, value) => {
+    const num = parseFloat(value);
+    if (isNaN(num)) return '0%';
+
+    switch (id) {
+      case 'bmi':
+        return `${Math.min(100, ((num - 10) / 30) * 100)}%`; // rough BMI range 10–40
+      case 'temperature':
+        return `${Math.min(100, ((num - 35) / 5) * 100)}%`; // 35°C–40°C
+      case 'bloodPressure':
+        const sys = parseFloat(bloodPressure?.systolic);
+        return `${Math.min(100, ((sys - 90) / 50) * 100)}%`; // 90–140
+      case 'glucose':
+        return `${Math.min(100, ((num - 60) / 100) * 100)}%`; // 60–160
+      case 'spo2':
+        return `${Math.min(100, ((num - 80) / 20) * 100)}%`; // 80–100%
+      case 'heartRate':
+        return `${Math.min(100, ((num - 50) / 100) * 100)}%`; // 50–150 bpm
+      default:
+        return '0%';
+    }
+  };
+
 
   // Build vitals array using Redux store values
   const vitals = [
+    // {
+    //   id: 'weight',
+    //   icon: <img src="/weight-scale.svg" alt="Weight" className='w-8 h-8' />, // Placeholder icon
+    //   label: t('summary.weight'),
+    //   value: weight ? `${weight} kg` : "NA",
+    //   normal: "65-75 kg",
+    //   abnormal:
+    //     weight &&
+    //     (parseFloat(weight) < normalRanges.weight.min ||
+    //       parseFloat(weight) > normalRanges.weight.max),
+    //   description: "Weight is a key indicator of overall health and nutrition status.",
+    //   tips: weight && parseFloat(weight) < normalRanges.weight.min ?
+    //     "Consider a balanced diet with adequate calories to reach a healthy weight." :
+    //     weight && parseFloat(weight) > normalRanges.weight.max ?
+    //       "Focus on balanced nutrition and regular physical activity." :
+    //       "Your weight is within the healthy range. Maintain your healthy lifestyle!",
+    //   color: function () {
+    //     if (this.value === "NA") return "text-gray-400";
+    //     if (this.abnormal) return "text-red-400";
+    //     return "text-green-400";
+    //   }
+    // },
     {
-      id: 'weight',
-      icon: <img src="/weight-scale.svg" alt="Weight" className='w-8 h-8' />, // Placeholder icon
-      label: t('summary.weight'),
-      value: weight ? `${weight} kg` : "NA",
-      normal: "65-75 kg",
-      abnormal:
-        weight &&
-        (parseFloat(weight) < normalRanges.weight.min ||
-          parseFloat(weight) > normalRanges.weight.max),
-      description: "Weight is a key indicator of overall health and nutrition status.",
-      tips: weight && parseFloat(weight) < normalRanges.weight.min ?
-        "Consider a balanced diet with adequate calories to reach a healthy weight." :
-        weight && parseFloat(weight) > normalRanges.weight.max ?
-          "Focus on balanced nutrition and regular physical activity." :
-          "Your weight is within the healthy range. Maintain your healthy lifestyle!",
+      id: 'bmi',
+      icon: <img src="/weight-scale.svg" alt="BMI" className='w-8 h-8' />,
+      label: 'BMI',
+      value: bmi ? `${bmi}` : "NA",
+      normal: "18.5 - 24.9",
+      abnormal: bmi && (bmi < 18.5 || bmi > 24.9),
+      description: "Body Mass Index (BMI) is a measure of body fat based on height and weight.",
+      tips: bmi && bmi < 18.5
+        ? "Underweight: Consider a nutrient-rich diet to gain healthy weight."
+        : bmi && bmi > 24.9
+          ? "Overweight: Adopt a balanced diet and regular physical activity."
+          : "Your BMI is in the normal range. Keep up your healthy lifestyle!",
       color: function () {
         if (this.value === "NA") return "text-gray-400";
         if (this.abnormal) return "text-red-400";
@@ -163,7 +213,7 @@ const SummaryPage = () => {
     },
     {
       id: 'temperature',
-      icon: <img src="/temp.svg" className="w-8 h-8"  alt="Temperature" />, // Placeholder icon
+      icon: <img src="/temp.svg" className="w-8 h-8" alt="Temperature" />, // Placeholder icon
       label: t('summary.temperature'),
       value: temperature ? `${temperature}°C` : "NA",
       normal: "36.1-37.2°C",
@@ -383,8 +433,8 @@ const SummaryPage = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 rounded-md transition-all text-xl ${activeTab === tab.id
-                    ? 'bg-primary text-white'
-                    : 'text-white/70 hover:text-white'
+                  ? 'bg-primary text-white'
+                  : 'text-white/70 hover:text-white'
                   }`}
               >
                 {tab.icon}
@@ -429,8 +479,8 @@ const SummaryPage = () => {
                   <div className="w-full bg-white/10 rounded-full h-4">
                     <div
                       className={`h-4 rounded-full ${wellnessScore >= 90 ? 'bg-green-400' :
-                          wellnessScore >= 75 ? 'bg-blue-400' :
-                            wellnessScore >= 60 ? 'bg-yellow-400' : 'bg-red-400'
+                        wellnessScore >= 75 ? 'bg-blue-400' :
+                          wellnessScore >= 60 ? 'bg-yellow-400' : 'bg-red-400'
                         }`}
                       style={{ width: `${wellnessScore}%` }}
                     ></div>
@@ -456,10 +506,10 @@ const SummaryPage = () => {
                       <h3 className="ml-4 font-medium text-2xl">{vital.label}</h3>
                     </div>
                     <div className={`text-lg px-3 py-2 rounded-md ${vital.value === "NA"
-                        ? 'bg-gray-600/30 text-gray-400'
-                        : vital.abnormal
-                          ? 'bg-red-500/20 text-red-400'
-                          : 'bg-green-500/20 text-green-400'
+                      ? 'bg-gray-600/30 text-gray-400'
+                      : vital.abnormal
+                        ? 'bg-red-500/20 text-red-400'
+                        : 'bg-green-500/20 text-green-400'
                       }`}>
                       {vital.value === "NA"
                         ? "No Data"
@@ -500,7 +550,7 @@ const SummaryPage = () => {
         )}
 
         {/* Details Tab */}
-        {activeTab === 'details' && (
+        {/* {activeTab === 'details' && (
           <div className="bg-extrablack rounded-xl p-6 shadow-lg border border-white/10">
             <h2 className="text-3xl font-semibold mb-6">Detailed Measurements</h2>
 
@@ -510,10 +560,10 @@ const SummaryPage = () => {
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center">
                       <div className={`p-3 mr-4 rounded-full ${vital.value !== "NA"
-                          ? vital.abnormal
-                            ? 'bg-red-500/20'
-                            : 'bg-green-500/20'
-                          : 'bg-gray-500/20'
+                        ? vital.abnormal
+                          ? 'bg-red-500/20'
+                          : 'bg-green-500/20'
+                        : 'bg-gray-500/20'
                         }`}>
                         {vital.icon}
                       </div>
@@ -535,6 +585,59 @@ const SummaryPage = () => {
                         <div
                           className={`h-3 rounded-full ${vital.abnormal ? 'bg-red-400' : 'bg-green-400'}`}
                           style={{ width: '70%' }} // Simplified for example
+                        ></div>
+                      )}
+                    </div>
+
+                    {vital.value !== "NA" && (
+                      <div className="flex justify-between text-lg mt-2 text-white/60">
+                        <span>Min</span>
+                        <span>Max</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )} */}
+
+        {/* Details Tab */}
+        {activeTab === 'details' && (
+          <div className="bg-extrablack rounded-xl p-6 shadow-lg border border-white/10">
+            <h2 className="text-3xl font-semibold mb-6">Detailed Measurements</h2>
+
+            <div className="space-y-8">
+              {vitals.map((vital) => (
+                <div key={vital.id} className="border-b border-white/10 pb-6 last:border-0">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center">
+                      <div className={`p-3 mr-4 rounded-full ${vital.value !== "NA"
+                        ? vital.abnormal
+                          ? 'bg-red-500/20'
+                          : 'bg-green-500/20'
+                        : 'bg-gray-500/20'
+                        }`}>
+                        {vital.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-2xl">{vital.label}</h3>
+                        <p className="text-lg text-white/60">Normal range: {vital.normal}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <span className={`text-3xl font-bold ${vital.color()}`}>
+                        {vital.value}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="w-full bg-white/10 rounded-full h-3">
+                      {vital.value !== "NA" && (
+                        <div
+                          className={`h-3 rounded-full ${vital.abnormal ? 'bg-red-400' : 'bg-green-400'}`}
+                          style={{ width: getProgressWidth(vital.id, vital.value.replace(/[^\d.-]/g, '')) }}
                         ></div>
                       )}
                     </div>
@@ -651,14 +754,6 @@ const SummaryPage = () => {
             <TrendingUp size={24} className="ml-3" />
           </button>
 
-          <div className="grid grid-cols-2 gap-4">
-            <button className="py-5 rounded-lg text-white font-medium text-xl border border-white/20 hover:bg-white/5 transition-colors">
-              Download Report
-            </button>
-            <button className="py-5 rounded-lg text-white font-medium text-xl border border-white/20 hover:bg-white/5 transition-colors">
-              Share Results
-            </button>
-          </div>
         </div>
       </div>
 

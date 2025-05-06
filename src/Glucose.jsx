@@ -163,6 +163,11 @@ const VitalsMeasurementGlucose = () => {
               className="w-64 h-64 object-contain" // Adjust size if needed
             />
           </div>
+
+          <div className="bg-extrablack text-white py-8 px-16 rounded-lg text-xl max-w-5xl mt-4 text-center">
+            <strong className="text-primary">Tip:</strong> Tap on the value below to manually enter your measurement. <br /> Use the slider in the pop-up to adjust, then press <strong className="text-primary">Save</strong> to confirm.
+          </div>
+
           {/* Glucose Panel */}
           <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
@@ -177,14 +182,15 @@ const VitalsMeasurementGlucose = () => {
             <span className="text-2xl text-gray-400">mg/dL</span>
           </div>
 
-          <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
+          {/* <div className="bg-extrablack rounded-xl p-6 border w-full border-white/35 flex-1">
             <div className="flex justify-between items-center mb-4">
               <span className="text-primary font-bold text-2xl">{t('glucose.card2')}</span>
             </div>
             <div className="text-4xl text-white mb-4">
               {tempCorrection ? tempCorrection : 'N/A'}
             </div>
-          </div>
+          </div> */}
+          
         </div>
         {glucoseModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
