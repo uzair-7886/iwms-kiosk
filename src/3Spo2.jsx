@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSpo2 } from './redux/vitalsSlice';
+import { setSpo2,setHeartRate as setHeartRateAction } from './redux/vitalsSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, QrCode, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +36,28 @@ const VitalsMeasurementOxygen = () => {
         dispatch(setSpo2(tempSpo2));
         setShowSpo2Modal(false);
     };
+
+    const startRecordingVitals = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/spo2', {
+            method: 'GET'
+          });
+          const { spo2, heartRate: hr } = await response.json();
+      
+          if (spo2 != null && hr != null) {
+            // store in Redux
+            dispatch(setSpo2(spo2.toString()));
+            dispatch(setHeartRateAction(hr.toString()));
+            // update local UI state
+            setHeartRate(hr);
+            setSpo2(spo2);
+          } else {
+            console.error('Vitals data not available', { spo2, hr });
+          }
+        } catch (error) {
+          console.error('Error recording vitals:', error);
+        }
+      };
 
 
     const currentStep = steps.findIndex(step => step.path === location.pathname);
@@ -259,7 +281,14 @@ const VitalsMeasurementOxygen = () => {
                 <p className="text-center text-gray-300 mb-8 text-xl max-w-4xl">
                     {t('oxygen.instruction')}
                 </p>
-
+                <div className="flex flex-col w-full gap-4 mx-auto mb-4">
+          <button
+            onClick={startRecordingVitals}
+            className="w-full py-6 mb-4 bg-primary rounded-lg text-white text-lg font-medium hover:bg-primary/80 transition-colors"
+          >
+            Start Recording
+          </button>
+        </div>
                 <div className="flex flex-col gap-4 mx-auto">
                     <button
                         onClick={moveNext}

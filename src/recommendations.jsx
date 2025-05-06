@@ -237,6 +237,15 @@ const RecommendationsPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  
+      const handleDone = () => {
+         if (localStorage.getItem('token')) {
+           localStorage.removeItem('token');           
+         }
+         navigate('/');
+       };
+
   // Weather
   const [weather, setWeather] = useState(null);
   useEffect(() => {
